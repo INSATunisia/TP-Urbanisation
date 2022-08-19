@@ -1,427 +1,271 @@
-# TP2 - Orchestration de Services avec Camunda
+# TP3 - Mise en Place d’un ESB avec Talend ESB
 
-![Orchestration](img/orchestration.png)
+![ESB](img/esb.png)
 
 ## Télécharger PDF
-[![Download TP2](img/pdf.png)](tp2.pdf)
+[![Download TP3](img/pdf.png)](tp3.pdf)
 
 ## Objectifs du TP
-Création d'un processus métier (Business Process) en utilisant Camunda.
+1. Routage, médiation et transformation avec Talend ESB.
+2. Gestion du failover et répartition de charges, monitoring et authentification avec Talend ESB.
 
 ## Outils et Versions
-* [Camunda](https://camunda.org/download/) Version: 7.7.0
-* [Java](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html) Version 1.8.0_121 (7+ needed).
-* [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) Version Ultimate 2016.1 (ou tout autre IDE de votre choix)
-* [Camunda Modeler](https://camunda.org/download/modeler/) Version 1.10.0
+* [Talend Open Studio for ESB](https://www.talend.com/download_page_type/talend-open-studio/) Version: 6.3.0
+* [DB Visualizer](https://www.dbvis.com/download/) Version 10.0
+* [Java](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html) Version 1.8.0_121
 
-## Camunda [![Camunda Website](img/website.png)](https://camunda.org)
-Camunda est une plateforme open source pour la gestion des processus métier. C'est un framework Java qui support **BPMN** pour l'automatisation des processus, **CMMN** pour le Case Management, et **DMN** pour le Business Decision Management.
+## Configuration et Utilisation de l'ESB Talend
 
+### Lancement de deux instances de l'ESB Talend
 
-## BPMN 2.0 [![BPMN Website](img/website.png)](http://www.bpmn.org/)
-BPMN 2.0 (Business Process Modeling Notation) est un standard développé par le Object Management Group (**OMG**) pour fournir une notation facilement compréhensible par tous les utilisateurs métier: les analystes métier, les développeurs implémentant les technologies exécutant ces processus et les personnes gérant et supervisant ces processus. BPMN permet d'établir un pont minimisant le gap entre les conceptions des processus et leurs implémentations.
+Pour les besoins de notre TP, nous allons lancer deux instances de l’ESB Talend. Pour cela, l’environnement nous fournit une manière très simple de le faire:
 
-Dans sa première version, la spécification BPMN permettait de fournir uniquement une notation graphique, et est devenue rapidement célèbre parmi les analystes métier. Elle définissait la manière dont les concepts tels que les tâches humaines et les scripts exécutables, pouvaient être visualisées de manière standard, indépendante d'un constructeur particulier.
+  * Aller dans le répertoire *<rep_install_talend\>/Runtime_ESBSE*
+  * Copier le répertoire *container* et le renommer en *alternate-container*.
 
-Cette deuxième version étend ce standard en incluant des sémantiques d'exécution et un format d'échange commun. Ce qui veut dire que les modèles de processus BPMN 2.0 peuvent être échangés entre des éditeurs graphiques différents, et exécutés sur n'importe quel moteur compatible avec BPMN 2.0, tel que Camunda et Activiti.
+Nous allons maintenant configurer la deuxième instance de l’ESB (dans *alternate-container*) pour qu’elle se lance sur un port différent de la première. Pour cela:
 
+  * **Lancer l’ESB** : dans le répertoire *alternate-container* que vous venez de créer, aller vers *bin* et exécuter *trun.bash* (sur windows). Si vous êtes sur Linux ou mac, placez-vous sous le répertoire *alternate-container/bin* et  lancer dans un terminal la commande *./trun*. La fenêtre suivante devrait s’afficher:
 
-## Installation
-Pour installer l'environnement nécessaire à ce TP, il faut suivre les étapes suivantes:
+<center><img src="../img/tp3/run-ESB2.png"></center>
 
-* Télécharger [Camunda](https://camunda.org/download/) (Distribution Tomcat), [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) et [Camunda Modeler](https://camunda.org/download/modeler/).
-* Décompresser le fichier .zip Camunda téléchargé, et exécuter *start-camunda.sh* (pour les systèmes Unix-based) ou *start-camunda.bat* (pour les systèmes Windows).
-* Ouvrir la page d'accueil du serveur d'application dans votre navigateur préféré.
-* Lancer le Camunda Modeler.
+!!! warning "Attention"
+    Le premier contenaire ne doit pas être en exécution, sinon il y'aura un conflit d'adresses. Il faut d'abord configurer le second contenaire pour qu'il se lance sur un port différent, ce que nous allons faire dans l'étape suivante.
 
-## Premier Projet Camunda BPMN: Helloworld
+  * **Configurer l'ESB** : dans l’invite de commande affichée, taper:
 
-### Création du Projet et Dépendances
-
-
-Vous allez maintenant créer un nouveau projet Java pour définir le comportement de votre processus.
-
-* Ouvrir IntelliJ et créer un nouveau projet Maven (sans archetype).
-* Vous pouvez choisir les paramètres suivants:
-
-    * Group Id: *tn.insat.eservices.tp2*
-    * Artifact Id: *Helloworld*
-    * Project Name: *HelloworldCamunda*
-
-* Dans le fichier *pom.xml*, indiquer que l'application sera déployée plus tard sous la forme d'un fichier *war*. Pour cela, ajouter la ligne suivante, juste après la version:
-
-```xml
-<packaging>war</packaging>
+``` bash
+  source scripts/configureC1.sh
 ```
 
-* Ajouter les dépendances nécessaires vers Camunda dans votre projet. Pour cela, insérer les lignes suivantes dans votre fichier *pom.xml*
+  * Un affichage tel que le suivant va apparaître:
 
-```xml
-<dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.camunda.bpm</groupId>
-        <artifactId>camunda-bom</artifactId>
-        <version>7.7.0</version>
-        <scope>import</scope>
-        <type>pom</type>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+<center><img src="../img/tp3/config-ESB2.png"></center>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.camunda.bpm</groupId>
-      <artifactId>camunda-engine</artifactId>
-      <scope>provided</scope>
-    </dependency>
+Vous avez ainsi créé un ESB, que vous avez configuré pour se lancer sur le port 8041, alors que, par défaut, il devrait se lancer sur le port 8040. Si vous voulez créer une troisième instance, vous pouvez la configurer en utilisant le fichier configureC2.sh, de même pour une quatrième instance… Pour revenir à la configuration par défaut, utiliser configureC0.sh.
 
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>3.0.1</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
+  * Arrêtez votre ESB, en cliquant sur ctrl-d, et relancez-le de nouveau.
+  * Lancez dans un autre terminal l’instance de l’ESB se trouvant sous le répertoire d’origine container. Il est inutile de la configurer, elle se lancera par défaut sur le port 8040.
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>2.3</version>
-        <configuration>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+### Publier votre Service dans l'ESB et le Tester
+Revenir au service web SOAP [HelloWorldService](tp1.md#service-web-soap-helloworld) que vous avez créé dans le TP1, et le publier sur l'ESB. Pour cela, ouvrir l'éditeur *Talend Open Studio* sur le projet *Helloworld*, et suivre les étapes suivantes:
+
+  * Faire un clic-droit sur le service *HelloWorldService* et choisir *Exporter le service*. Choisir comme répertoire de destination le dossier *deploy* se trouvant dans le conteneur où vous désirez déployer le service. Un fichier archive de type kar sera alors créé sous ce répertoire, permettant ainsi son déploiement à chaud (pas besoin de redémarrer l’ESB).
+  * Déployer votre service sur les deux instances d’ESB que vous avez démarré.
+  * Vérifier que vos services sont actifs:
+    - en tapant *list* dans vos deux instances d’ESB
+    - en affichant les fichiers WSDL du service sur les ports 8040 et 8041 au lieu de 8090.
+
+Pour tester votre service web:
+
+  * Dans le job consommateur de service, dans les propriétés du composant tESBConsumer, modifier le port du endpoint de 8090 à 8040
+  * Lancer votre job. Vérifier que l’affichage se fait correctement sur la console du TOS-ESB.
+
+Vérifier que votre service s’exécute bien sur l’ESB principal, en consultant le terminal où il est démarré. Vous devriez trouver un affichage semblable à celui-ci:
+
+<center><img src="../img/tp3/service-exec.png"></center>
+
+##Création des Routes
+Les routes permettent de définir le comportement que doit prendre le message selon son contenu. Dans notre exemple, nous allons définir deux types de routes: une route permettant de filtrer les messages par contenu, en envoyant les messages contenant le nom “Alice” vers un ESB, et le reste vers l’autre ESB. Une deuxième route permettra de modifier le contenu de certains messages avant de les faire parvenir à leurs destinataires.
+
+###Première Route: Filtrage des Messages
+
+  * Créer une nouvelle route en cliquant-droit sur *Routes -> Créer une Route*. Nous allons l’appeler FiltrageRoute.
+  * Définir votre route de manière à ce qu’elle ressemble à ce qui suit:
+
+<center><img src="../img/tp3/filtrage-route.png"></center>
+
+  * Les composants utilisés sont:
+
+    - **cCXF** : fournit l'intégration avec Apache CXF pour la connexion aux services JAX-WS.
+    - **MessageRouter** : route des messages dans différents canaux selon des conditions spécifiées.
+
+  * Configurer la condition *when*, en précisant que c’est une condition de type simple, dont le texte est :
+
+```bash
+    "${bodyAs(String)} contains 'Alice'"
+```
+  Cela veut dire que, si le corps du message contient *Alice*, la requête sera routée vers le composant *cCXF_2*.
+
+  * Configurer le composant cCXF_1:
+
+    * Adresse: http://localhost:8042/services/HelloWorldService
+    * WSDL: http://localhost:8040/services/HelloWorldService?WSDL.
+
+!!! tip "Remarque"
+
+    Remarquez ici que le port utilisé pour l'adresse est 8042: c'est le port choisi pour le service façade fourni par la route. Le WSDL utilisé, par contre, est celui du service initial, exposé sur le port 8040, donc sur le premier ESB.
+
+  * Configurer l’adresse de cCXF_2 sur le port 8040, et celle de cCXF_3 sur le port 8041, tout en gardant le même WSDL pour les trois composants.
+  * Lancer la route pour la tester. La console devra afficher *connected*.
+
+Pour utiliser cette route, vous devez reconfigurer votre consommateur pour qu’il lance sa requête sur le port 8042. Exécutez-le et observez le résultat sur les terminaux des deux instances d’ESB démarrées. Que constatez-vous?
+
+###Déploiement des Routes sur l'ESB
+
+Dans leur état actuel, vos routes doivent être lancées manuellement pour être prises en considération. Pour les déployer sur votre ESB et les garder ainsi toujours actives, suivre les étapes suivantes:
+
+  * Faites un clic-droit sur votre route et sélectionner: *Build Route* (veillez à ce que le job FiltrageRoute soit bien arrêté).
+  * Choisir le répertoire deploy du conteneur de votre choix.
+  * Tester votre route en exécutant à nouveau le consommateur.
+
+!!! warning "Attention"
+
+    Vous ne devez en aucun cas déployer votre route sur deux contenaires, sinon, il y'aura un conflit, car deux services façades seront exposés, ayant la même adresse.
+
+###Deuxième Route : Filtrage et Modification de Messages
+Dans cette nouvelle partie, nous allons modifier le corps du message après l’avoir filtré. Pour cela:
+
+  * Dans Talend Studio, dupliquer votre route *FiltrageRoute* et la nommer *ModificationRoute*.
+  * Insérer un composant *cSetBody* (permettant de modifier le corps du message reçu) puis un composant *cProcessor* (permettant  de remanier rapidement du code dans la route) entre le *cMessageRouter* et le *cCXF_3*. Le but ici est de modifier le corps des messages reçus, selon leur contenu. Le résultat obtenu ressemblera au suivant:
+
+<center><img src="../img/tp3/modification-route.png"></center>
+
+
+  * Insérer le code suivant (de type Xpath) dans le *cSetBody* :
+
+```
+  "tns:HelloWorldServiceOperationRequest/in"
 ```
 
-* Faire un build de votre projet. Pour cela, créer une nouvelle configuration de type Maven, que vous appellerez *maven-install* par exemple, et vous écrirez dans la partie **Command Line** : *install*, comme suit:
+Ceci permet de saisir le contenu de la balise *in* de la requête SOAP envoyée par le consommateur. Il ne faut pas oublier de définir le Namespace *tns* (http://www.talend.org/service/).
 
-![Maven Install](img/tp2/maven-install.png)
-
-* Lancer le build et vérifiez bien que vos packages ont bien été installés.
-
-### Création de la classe principale pour le processus
-La prochaine étape permet de construire une classe pour le processus. Cette classe représente l'interface entre votre application et le moteur de processus Camunda.
-
-``` java
-package tn.insat.eservices.tp2.helloworld;
-
-import org.camunda.bpm.application.ProcessApplication;
-import org.camunda.bpm.application.impl.ServletProcessApplication;
-
-@ProcessApplication("Helloworld App")
-public class HelloworldApplication extends ServletProcessApplication {
-    // empty implementation
-}
-```
-
-Ajouter ensuite le fichier *processes.xml* sous le répertoire *src/main/resources/META-INF*. Ce fichier nous permet de fournir une configuration pour le déploiement de ce processus dans le moteur de processus.
-
-
-``` xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<process-application
-        xmlns="http://www.camunda.org/schema/1.0/ProcessApplication"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-    <process-archive name="helloworld">
-        <process-engine>default</process-engine>
-        <properties>
-            <property name="isDeleteUponUndeploy">false</property>
-            <property name="isScanForProcessDefinitions">true</property>
-        </properties>
-    </process-archive>
-
-</process-application>
-```
-
-A partir de ce point, nous allons commencer à modéliser le processus.
-
-### Modélisation d'un processus BPMN 2.0
-La modélisation du processus se fera grâce au *Camunda Modeler*. Pour cela:
-
-* Démarrer l'application, et créer un nouveau diagramme BPMN en cliquant sur *File > New File > BPMN Diagram*.
-
-![Premier Projet Camunda](img/tp2/camunda-first-proj.png)
-
-* Double-cliquer sur l'évènement de départ (le petit rond) pour modifier son nom. Nous l'appelerons *Dis Bonjour*.
-* Cliquer sur l'évènement de départ, choisir le rectangle (représentant une activité) à partir du menu contextuel qui apparaît, et le glisser vers un emplacement adéquat. Nous appellerons le nouvel évènement inséré *Ajouter Bonjour*.
-
-<center><img src="../img/tp2/menu-contextuel.png" width="200"></center>
-
-* Cette tâche sera celle où l'utilisateur va indiquer son nom pour l'éternel **Bonjour <nom\>!**. Pour cela, nous devons indiquer que le traitement fait ici sera réalisé par un humain. Pour cela, en cliquant sur l'activité créée, cliquer dans le menu contextuel sur la clef à molette, puis choisir *User Task*.
-
-<center><img src="../img/tp2/user-task.png" width="500"></center>
-
-* Rajouter une tâche de fin au processus.
-
-Nous obtenons pour finir le diagramme suivant:
-
-<center><img src="../img/tp2/hw-process.png" width="500"></center>
-
-
-
-### Configuration du processus
-
-* Pour configurer la tâche utilisateur *Ajouter Bonjour*, cliquer dessus, et remplir le panneau des propriétés (sur la droite). Définir l'utilisateur auquel sera destinée cette activité. Pour cela, dans le champ *Assignee*, insérer *john*. John est un utilisateur prédéfini sur le serveur Camunda. Plus tard, vous pourrez définir votre propre liste d'utilisateurs et de rôles.
-* Pour configurer le processus en entier, cliquer sur un endroit vide du canevas. Dans le panneau des propriétés, indiquer les champs suivants:
-    - Id: *helloworld*
-    - Name: *Helloworld*
-    - Executable: *true*
-
-Vous obtiendrez le résultat suivant:
-
-![Premier Processus Terminé](img/tp2/process-defined.png)
-
-* Sauvegarder le diagramme sous le répertoire *src/main/resources* du projet que vous avez créé. Vous l'appellerez *helloworld.bpmn*
-
-### Déploiement du processus
-
-* Configurer l'application pour qu'elle soit déployée sur le serveur tomcat intégré dans votre installation Camunda. Pour cela, dans IntelliJ:
-
-    - Aller au menu *File > Project Structure...*
-    - Cliquer sur *Artifacts*.
-    - Définir le type de l'archive à déployer: *Web Application: Archive*
-    - Définir comme Output Directory le répertoire *webapps*, se trouvant en général sous le répertoire *$CAMUNDA_HOME/server/apache-tomcat-<version\>/webapps*.
-    - En bas de la fenêtre, vous trouverez un bouton *Create Manifest*. Cliquer dessus, cela permettra de créer le fichier Manifest responsable du déploiement.
-    - Vous obtiendrez le résultat suivant:
-
-![Configuration du déploiement](img/tp2/deploy.png)
-
-  - Faire un *make* du projet. Pour cela, aller au menu *Build > Make Project* ou cliquer sur ![make](img/tp2/make.png). Normalement, un nouveau fichier *helloworld-1.0-SNAPSHOT.war* sera créé dans le répertoire *webapps* du serveur.
-
-Pour vérifier que le processus a bien été déployé sur le serveur Tomcat, consulter le fichier log se trouvant sous *$CAMUNDA_HOME/server/apache-tomcat-<version\>/logs* et ouvrir le fichier *catalina.out*.
-
-!!! tip
-    Le meilleur moyen de consulter en permanence le fichier log sur les systèmes Linux-like est d'ouvrir un terminal, et de taper `tail -f catalina.out`.
-
-Le fichier devra contenir les lignes suivantes:
-
-![BPMN déployé!](img/tp2/bpm-deployed.png)
-
-### Vérification du déploiement avec Cockpit
-
-Camunda offre l'outil *Cockpit* pour inspecter les processus en cours d'exécution et complétés, et gérer les différents incidents. Pour cela, si votre serveur Camunda est bien lancé, vous pourrez visualiser vos processus dans le navigateur, en tapant: `http://localhost:8080/camunda/app/cockpit`. Identifiez-vous comme administrateur en tapant les credentials: `demo/demo`. Cliquer sur le nombre sous *Process Definitions* (cela devra être **2** dans votre cas), vous devriez retrouver votre processus, avec un état *checked*.
-
-![Cockpit](img/tp2/cockpit.png)
-
-### Démarrage du processus
-
-* Aller au *Camunda Tasklist* (`http://localhost:8080/camunda/app/tasklist`), puis lancer le processus en cliquant sur le bouton *Start Process* (en haut à droite).
-* Cliquer sur votre processus *Helloworld*.
-* Ajouter autant de variables que nécessaire dans le formulaire générique. Nous allons dans notre cas ajouter une variable *nom* de type chaîne de caractères. Pour cela, cliquer sur *Add a variable* et remplir comme suit (mettez votre nom bien sûr, pas le mien :smiley: ):
-
-![Ajouter une variable](img/tp2/run-var.png)
-
-* En rafraîchissant maintenant le Cockpit, vous trouverez que le processus est passé à l'état *Running*.
-
-### Configuration des permissions
-Pour permettre à l'utilisateur John de visualiser et lancer le processus *Helloworld*, il faudra lui rajouter les autorisations. Pour cela:
-
-* Aller à *Camunda Admin* (`http://localhost:8080/camunda/app/admin/default/#/authorization?resource=0`).
-* Ajouter une nouvelle autorisation dans la partie *Process Definition*, pour permettre à John de manipuler la définition du processus *Helloworld*.
-
-![Ajouter une permission - Process Definition](img/tp2/def-perm.png)
-
-* Dans la partie *Process Instance*, ajouter la permission de créer une instance de processus à John.
-
-![Ajouter une permission - Process Instance](img/tp2/inst-perm.png)
-
-* Vous authentifier comme étant John, en utilisant (*john/john*), de préférence sur un autre navigateur. Vous pourrez ainsi visualiser le processus Helloworld, tel qu'il est visible par John. Il pourra ainsi ajouter les variables de son choix, et compléter le processus.
-
-![Exécuter le processus](img/tp2/john-run-process.png)
-
-### Création d'un formulaire personnalisé
-Pour créer votre propre formulaire, avec des variables en entrée qui peuvent être manipulées par le service,  suivre les étapes suivantes:
-
-* Revenir vers IntelliJ, et créer un fichier *dis-bonjour.html* sous le répertoire *src/main/webapp/forms*. Ajouter le contenu suivant:
-
-```html
-<form name="disBonjour">
-    <div class="form-group">
-        <label for="nom">Nom</label>
-        <input class="form-control"
-               cam-variable-type="String"
-               cam-variable-name="nom"
-               name="nom" />
-    </div>
-</form>
-```
-
-* Ouvrir le processus avec le Modeler, et cliquer sur l'évènement de départ. Dans le panneau des propriétés, choisir la tabulation *Forms*  et insérer `embedded:app:forms/dis-bonjour.html` dans le champ *Key*. Cela indique que nous voulons utiliser un formulaire intégré dans la Tasklist, et qu'il sera chargé à partir de l'application.
-* Sauvegarder, et rafraîchir le projet dans IntelliJ.
-* De même, nous allons créer le formulaire qui va permettre à John de dire Bonjour. On l'appellera *bonjour.html*.
-
-```html
-<form name="bonjour">
-    <div class="form-group">
-        <label for="salutation">Salutation</label>
-        <input class="form-control"
-               cam-variable-type="String"
-               cam-variable-name="salutation"
-               name="salutation" />
-    </div>
-    <div class="form-group">
-        <label for="nom">Nom</label>
-        <input class="form-control"
-               cam-variable-type="String"
-               cam-variable-name="nom"
-               name="nom"
-               readonly="true" />
-    </div>
-</form>
-```
-
-* Affecter ce formulaire à la tâche *Ajouter Bonjour* de la même manière que précédemment.
-* Sauvegarder tout et re-déployer le projet.
-* Lancer maintenant le processus. Saisir votre nom dans la rubrique *Nom*.
-
-![Exécuter le processus2](img/tp2/start-process-2.png)
-
-* Identifiez-vous comme John de nouveau, vous trouverez le deuxième formulaire:
-
-![Ajouter Bonjour!](img/tp2/add-hello-2.png)
-
-Pour l'instant, en cliquant sur compléter, rien ne se passe, car nous n'avons indiqué nulle part ce qui doit être réalisé suite à la saisie du "Bonjour" par John. Cela sera fait grâce à un *Service Task*.
-
-### Ajout d'un Service Task Java
-Pour définir le comportement à faire de votre service, suivre les étapes suivantes:
-
-* Utiliser le Modeler pour ajouter un service task juste après le user task. Pour cela, sélectionner une activité dans la palette de gauche, et la glisser entre la tâche utilisateur et l'évènement de fin. Avec la clef à molette ![clef-molette](img/tp2/clef-molette.png) , sélectionner l'option *Service Task*. Appeler le service *Dire Bonjour*. Vous obtiendrez le résultat suivant:
-
-![Nouveau Processus avec Service Task](img/tp2/service-task.png)
-
-* Ajouter maintenant l'implémentation du Service Task. Pour cela, ajouter une classe dans le projet IntelliJ appelée *ProcessRequestDelegate* qui implémente l'interface *JavaDelegate*, comme suit:
+  * Insérer le code suivant dans le processeur:
 
 ```Java
-package tn.insat.eservices.tp2.helloworld;
-
-import java.util.logging.Logger;
-import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.JavaDelegate;
-
-public class ProcessRequestDelegate implements JavaDelegate {
-
-    private final static Logger LOGGER = Logger.getLogger("Hello-Greetings");
-
-    public void execute(DelegateExecution execution) throws Exception {
-        LOGGER.info("Hey! " + execution.getVariable("salutation")
-                    + " " + execution.getVariable("nom") + "!");
-    }
-
+String name = exchange.getIn().getBody(String.class);
+String surname;
+if (name.contains("Bob")){
+  surname = "Bobby";
+}else{
+  surname = "Chucky";
 }
+exchange.getIn().setBody("<tns:HelloWorldServiceOperationRequest "+
+    "xmlns:tns=\"http://www.talend.org/service/\"><in>"
+    +surname+"</in>	</tns:HelloWorldServiceOperationRequest>");
 ```
 
-* Utiliser le panneau des propriétés pour référencer la classe dans le processus. Pour cela, cliquer sur le Service Task, et définir son implémentation par la Java Class: `tn.insat.eservices.tp2.helloworld.ProcessRequestDelegate`.
-* Déployer votre application, et observer le résultat. Il sera affiché dans le log de votre serveur Tomcat (catalina.out), comme suit:
+Ce code permet de modifier le corps du message entrant en remplaçant le nom par un surnom.
 
-![Bonjour Lilia!](img/tp2/bonjour.png)
+  * Modifier l'adresse du composant *cCXF_1* pour qu'il se lance sur le port 8043.
+  * Sauvegarder et exporter votre route dans l’ESB. Lancer le consommateur de nouveau et observez le résultat.
 
-## Appel d'un Service Web REST
-Grâce aux connecteurs, Camunda peut intégrer des services web REST ou SOAP. Pour cela, nous allons faire appel à un service web classique de météo. Dans son formulaire, John va saisir le nom d'une ville, et le processus devra retourner la température actuelle dans cette ville, en plus de l'usuel Bonjour.
+##Fonctionnalités Supplémentaires de l'ESB
+###Failover et Répartition de Charge
+####Service Locator
+Via le Service Locator, l'ESB de Talend fournit des fonctionnalités de gestion de failover automatique et transparente ainsi que de répartition de charge via le lookup et l'enregistrement d'endpoints dynamiques dans Apache Zookeeper. Le Service Locator maintient la disponibilité du service afin de répondre aux demandes et aux Service Level Agreements (SLAs).
 
-* Commencer par ajuster le formulaire *bonjour.html*, en lui ajoutant un autre champs de texte: *ville* après le champs *nom*.
-* Revenir dans le Modeler, et ajouter un Service Task, qu'on appellera *Consulter Météo*, entre *Ajouter Bonjour*  et *Dire Bonjour*.
-* Dans ce service, indiquer que le type d'implémentation est *Connector*, et vous déplacer vers l'onglet *Connector* pour le configurer.
-* Donner les paramètres suivants à votre connecteur;
-    - **Id**: *http-connector*
-    - **Input**: Les input prendront toutes les informations nécessaires pour envoyer la requête REST au service web *OpenWeatherMap*. Ce service prend en paramètre la ville, qui sera insérée dans notre cas à partir du formulaire précédent, dans le champs *ville*.
+####Configuration du Service Locator
+Pour activer le service locator (SL), il faut:
 
-    |Nom|Type|Valeur|
-    |-------|--------|-----------------------------------------------------|
-    | url | Script / JavaScript / Inline Script |  ``` var ville=execution.getVariable("ville"); 'http://api.openweathermap.org/data/2.5/weather?APPID=17db59488cadcad345211c36304a9266&q='+ville; ```|
-    | method  | Text  | GET  |
-    |  headers | Map  | `key: accept, value:application/json -       key:content-type, value:application/json`  |
+  1. Déployer SL au niveau des conteneurs d’exécution Talend
+  2. Activer la prise en compte du SL au niveau du service cible
+  3. Configurer le consommateur du service pour prendre en compte le SL
 
-    - **Output**: Le service utilisé renvoie un document json qui ressemble à ce qui suit:
+#####1. Déploiement du SL dans le contenaire
 
-```JavaScript
-{
-  coord: {
-    lon: 10.17,
-    lat: 36.82
-  },
-  weather: [
-    {
-      id: 801,
-      main: "Clouds",
-      description: "few clouds",
-      icon: "02d"
-    }
-  ],
-  base: "stations",
-  main: {
-    temp: 299.87,
-    pressure: 1018,
-    humidity: 39,
-    temp_min: 299.15,
-    temp_max: 301.15
-  },
-  visibility: 10000,
-  wind: {
-    speed: 3.6,
-    deg: 40
-  },
-  clouds: {
-    all: 20
-  },
-  dt: 1506864600,
-  sys: {
-    type: 1,
-    id: 6318,
-    message: 0.0039,
-    country: "TN",
-    sunrise: 1506834907,
-    sunset: 1506877308
-  },
-  id: 2464470,
-  name: "Tunis",
-  cod: 200
-}
+Pour tester sa capacité à gérer le failover et la répartition des charges, le SL doit être déployé dans les différents conteneurs de services où sera déployé votre service. Pour cela, taper dans l’invite de commande de chaque conteneur ESB:
+
+```properties
+  tesb:start-locator
 ```
 
-Si l'objectif est de retourner la valeur de la température, on doit naviguer vers l'élément *main* puis à son fils *temp*. L'output de notre service aura donc la forme suivante:
+Il est possible de visualiser votre SL dans la liste des services déployés sur le conteneur en tapant list sur votre terminal. Vous devriez trouver les lignes suivantes:
+
+<center><img src="../img/tp3/activ-locator.png"></center>
+
+#####2. Activer SL dans le service
+
+Pour activer la prise en compte de SL au niveau de notre service utilisateur dans Talend Studio:
+
+  * Clic-droit sur le service
+  * Choisir *ESB Runtime Options*
+  * Cocher la case *"Utiliser le Service Locator"*
+
+Il faut veiller à re-déployer votre service dans les deux conteneurs après l’activation de la fonctionnalité.
+
+#####3. Activer SL dans le consommateur
+
+Au niveau du consommateur du service, dans les propriétés du composant tESB, cocher la case *Use Service Locator*.
+
+####Test du Service Locator
+
+*Pour tester la répartition de charges* : Lancer le consommateur plusieurs fois sur le port 8040 et observez le résultat.
+
+*Pour tester la gestion du failover* : Arrêter le service sur le contenaire principal (8040). Pour cela, dans l'invite de commande du contenaire principal, taper *list*, puis chercher l'identifiant du service *HelloWorldService*. Taper ensuite : *stop <id_service\>*. Lancer le consommateur sur le endpoint 8040, et observez le résultat.
+
+###Service Monitoring
+Le composant SAM permet le logging et la surveillance des appels de service, réalisés avec le framework Apache CXF. Il peut être utilisé pour collecter, par exemple, les statistiques d’usage et le monitoring des fautes.
+
+Pour configurer le Service Activity Monitoring:
+
+1.	Déployer SAM au niveau du conteneur d’exécution Talend. Pour cela, taper :
+```properties
+tesb:start-sam
+```
+  Vous remarquerez qu’une base de données Derby sera également déployée sur le conteneur: elle permet de stocker les informations sur l’activité des services.
+
+2.	Activer la prise en compte de SAM au niveau du service cible
+3.	Configurer le consommateur du service pour prendre en compte le SAM
+
+Pour visualiser le résultat de la surveillance, utiliser un visualiseur de bases de données, tel que [Db Visualizer](https://www.dbvis.com/download/).
+
+Pour accéder à la base de données de monitoring, utiliser les paramètres de configuration suivants:
+
+-	*Database connection configuration (Default)*: Derby/JavaDB
+-	*Driver*: JavaDB/Derby Server
+-	*Database Server*: localhost
+- *Database Port*: 1527
+- *Database*: DB
+-	*DB username*: test
+-	*DB password*: test
+
+Exécuter votre service plusieurs fois, et observer le résultat.
+
+###Authentification
+####Security Token Service (STS) : Implémentation du WS-Trust
+Dans un environnement hétérogène, les services web doivent authentifier les services clients pour contrôler leur accès, grâce à la norme WS-Security, et en implémentant le WS-Trust. *"Trust"* veut dire *"Confiance"*: le but ici est donc d’établir un lien de confiance entre le consommateur et le fournisseur.
+
+Pour cela, un courtier d’authentification est utilisé, fournissant un contrôle d’accès pour les applications. Ce courtier délivre des jetons de sécurité utilisés par les clients pour s’authentifier au service.
+
+Le STS (*Security Token Service*) est un service web qui fournit un tel courtier d’authentification. Ses jetons respectent le standard WS-Trust. Il offre les fonctionnalités suivantes:
+
+-	Délivrer un jeton de sécurité basé sur des paramètres d’authentification configurés.
+-	Vérifier la validité d’un paramètre d’authentification
+-	Renouveler un jeton de sécurité
+-	Annuler un jeton de sécurité
+-	Transformer un jeton de sécurité donné en un autre de type différent.
 
 
-|Nom|Type|Valeur|
-|----|----|------------------------------------------------------------|
-| WsResponse | Script / JavaScript / Inline Script |  ` S(response).prop("main").prop("temp").numberValue(); `|
+L’utilisation d’un STS simplifie grandement la gestion de la sécurité pour le service et le client, car ils n’ont qu’à faire appel à ce STS, qui va gérer la logique de sécurité, au lieu de la traiter eux-mêmes.
 
-!!! tip
-    Toujours tester votre web service REST sur navigateur avant de l'utiliser dans une quelconque application!
+####Configuration des Paramètres de Sécurité
+Pour associer des paramètres de confidentialité à un service, il faut suivre les étapes suivantes:
 
-* Maintenant, ajouter le code d'exploitation de ce service dans la classe *ProcessRequestDelegate*, pour lui indiquer d'afficher le résultat de la requête:
+1. Déployer STS dans le conteneur d’exécution Talend
+2. Configurer les paramètres de sécurité de votre conteneur
+3. Activer la prise en compte de STS dans votre service
+4. Configurer votre client pour saisir les paramètres d’authentification.
 
-```java
-public class ProcessRequestDelegate implements JavaDelegate {
-
-    private final static Logger LOGGER = Logger.getLogger("Hello-Greetings");
-
-    public void execute(DelegateExecution execution) throws Exception {
-        LOGGER.info("Hey! " + execution.getVariable("salutation") + " "
-                + execution.getVariable("nom")
-                + "! La température aujourd'hui à "
-                + execution.getVariable("ville")
-                + " est de "
-                + execution.getVariable("WsResponse")+"!");
-    }
-
-}
+#####1. Déployer STS dans le conteneur d’exécution
+Pour installer le service STS dans votre conteneur, démarrer ce dernier, et taper l’instruction suivante dans le terminal:
+```properties
+    feature:install tesb-sts
 ```
 
-* Tout sauvegarder puis déployer le service. En l'exécutant, vous obtenez le résultat suivant:
-    - L'utilisateur demo saisit son nom:
-![Saisie du nom](img/tp2/start-process-2.png)
+Si le service a bien été installé, vous pouvez vérifier qu’il est bien démarré en exécutant la commande : *list*. Vous devriez trouver les lignes suivantes:
 
-    - L'utilisateur john rajoute la salutation et la ville:
-![Ajout du nom et de la ville](img/tp2/say-hello-3.png)
+<center><img src="../img/tp3/activ-sts.png"></center>
 
-    - Le processus affiche ce résultat sur le log:
-![Résultat](img/tp2/resultat-3.png)
+#####2. Configurer les paramètres de sécurité de votre conteneur
+Comme c’est le STS qui prend en charge le contrôle d’accès, les paramètres d’authentification (le login/mdp par exemple) ne sont pas configurés au niveau du service fournisseur, mais au niveau du conteneur lui-même.
 
-!!! faq "TAF"
-    Vous remarquerez que le service web REST que nous avons appelé rend la température en degré Kelvin. Chercher un service web qui fasse la conversion du ºK vers le ºC, puis appelez-le avant de faire l'affichage.
+Pour visualiser l’ensemble des utilisateurs autorisés sur votre conteneur, voir leurs mots de passes et rôles, et éventuellement en ajouter de nouveaux, ouvrir le fichier: *<conteneur\>/etc/users.properties*.
+
+Dans ce fichier, les informations d'authentification sont sous la forme: *user=password,group*. Ajouter une nouvelle ligne avec votre nom comme user et un mot de passe de votre choix, et choisir le groupe *admin*.
+
+#####3. Activer STS dans votre service
+Pour activer la prise en compte de STS au niveau de notre service utilisateur dans Talend Studio, dans *ESB Runtime Options*, cocher le type d’authentification désiré (dans notre cas, *Identifiant/Mot de passe*)
+
+#####4. Configurer le client
+Pour insérer le login/mdp dans votre application cliente, modifier les paramètres d’authentification de votre composant tESBConsumer dans votre job consommateur.

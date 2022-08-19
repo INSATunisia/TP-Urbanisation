@@ -1,508 +1,512 @@
-# TP4 - Microservices avec Spring Boot et Spring Cloud
+# TP5 - API Management avec Atom et Anypoint
 
-![Microservices](img/microservices.png)
+
+![API](img/api.png)
 
 ## Télécharger PDF
-[![Download TP4](img/pdf.png)](tp4.pdf)
+[![Download TP5](img/pdf.png)](tp5.pdf)
 
 ## Objectifs du TP
-1. Création de microservices avec Spring Boot et Spring Cloud
-2. Déploiement d'un microservices sur plusieurs instances
-
-## Acknowledgement
-Ce TP a été largement inspiré du travail d'un binôme d'étudiants en Génie Logiciel à l'INSAT, promotion 2017 (Houssem Ben Braiek et Hadhemi Jabnoun), que je tiens à féliciter et remercier.
+1. Génération d’API avec Atom et le langage RAML
+2. Gestion des APIs avec Anypoint Studio et le API Gateway de Mulesoft
 
 ## Outils et Versions
-* [Spring Boot](https://projects.spring.io/spring-boot/) Version: 1.5.8
-* [Spring Cloud](http://projects.spring.io/spring-cloud/) Version 1.2.4
-* [Java](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html) Version 1.8.0_121
-* [Maven](https://maven.apache.org/) Version 3.5.2
-* [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) Version Ultimate 2016.1 (ou tout autre IDE de votre choix)
-
-## Architecture Microservices
-
-### Présentation
-Une architecture [Microservices](https://martinfowler.com/articles/microservices.html) représente un moyen de concevoir les applications comme ensemble de services indépendamment déployables. Ces services doivent de préférence être organisés autours des compétences métier, de déploiement automatique, d'extrémités intelligentes et de contrôle décentralisé des technologies et des données.
-
-### Architecture Proposée
-L'objectif de ce travail est de montrer comment créer plusieurs services indépendamment déployables qui communiquent entre eux, en utilisant les facilités offertes par Spring Cloud et Spring Boot. [Spring Cloud](http://projects.spring.io/spring-cloud/) fournit des outils pour les développeurs pour construire rapidement et facilement des patrons communs de systèmes répartis (tel que des services de configuration, de découverte ou de routage intelligent). [Spring Boot](https://projects.spring.io/spring-boot/) permet de son côté de construire des applications Spring rapidement aussi rapidement que possible, en minimisant au maximum le temps de configuration, d'habitude pénible, des applications Spring.
-
-Nous allons donc créer les microservices suivants:
-
-  1. *Product Service* : Service principal, qui offre une API REST pour lister une liste de produits.
-  2. *Config Service* : Service de configuration, dont le rôle est de centraliser les fichiers de configuration des différents microservices dans un endroit unique.
-  3. *Proxy Service* : Passerelle se chargeant du routage d'une requête vers l'une des instances d'un service, de manière à gérer automatiquement la distribution de charge.
-  4. *Discovery Service*: Service permettant l'enregistrement des instances de services en vue d'être découvertes par d'autres services.
-
-L'architecture résultante aura l'allure suivante:
-
-<center><img src="../img/tp4/archi.png"></center>
+* [Atom](https://atom.io/) Version: 1.22.1
+* [API Workbench](http://apiworkbench.com/): Plugin Atom. Version: 0.8.47
+* [Anypoint Studio](https://www.mulesoft.com/platform/studio) Version: 6.4.1
+* [MySQL](https://dev.mysql.com/downloads/mysql/) Version 5.7.20 (ou tout autre SGBD de votre choix)
 
-## Création des Microservices
-### Microservice **ProductService**
-Nous commençons par créer le service principal: *Product Service*.
+## Génération d'API avec RAML
+### RAML
+[RAML](http://docs.raml.org/) (RESTful API Modeling Language) est un langage pour la définition d’API HTTP qui satisfont les exigences de l'architecture REST. La spécification RAML est une application de la spécification YAML, qui fournit des mécanismes pour la définition d’APIs RESTful.
 
-<center><img src="../img/tp4/archi-s1.png"></center>
+RAML est développé et supporté par un groupe de leaders en nouvelles  technologie, provenant de plusieurs entreprises éminentes (Mulesoft, Airware, Akana, VMware, CISCO…). Leur but est de construire une spécification ouverte, simple et succincte pour la description d’APIs. Ce groupe de travail contribue à la fois à la spécification RAML, ainsi qu’à un écosystème croissant d’outils autours de ce langage.
 
-Chaque microservice sera sous forme d'un projet Spring. Pour créer rapidement et facilement un projet Spring avec toutes les dépendances nécessaires, Spring Boot fournit *Spring Initializr*.
+### API Workbench
+Pour écrire un document RAML de manière simple et intuitive, un outil de travail est fourni, sous la forme d’un plugin pour [Atom](https://atom.io/), l'éditeur de texte open source, appelé [API Workbench](http://apiworkbench.com/).
 
-Pour cela, aller au site *[start.spring.io](http://start.spring.io)*, et créer un projet avec les caractéristiques suivantes:
+Pour l’installer:
 
-  * Projet Maven avec Java et Spring Boot version 1.5.8
-  * Group: tn.insat.tpmicro
-  * Artifact: product-service
-  * Dépendances:
-    - Web
-    - Rest Repositories
-    - JPA : Java Persistence API
-    - H2 : base de données pour le stockage
-    - Actuator : pour le montoring et la gestion de l'application
-    - Eureka Discovery : pour l'intégration avec le *Discovery Service*
-    - Config Client : pour l'intégration avec le *Config Service*
+  * Télécharger et installer Atom: https://atom.io/
+  * Dans le menu Préférences, choisir l’option *Packages*, et taper dans la barre de recherche:  *api-workbench*.
+  * Une fois le package installé, on devrait trouver dans le menu Packages, un nouvel élément *API Workbench*.
 
-Suivre ensuite les étapes suivantes pour créer le microservice *ProductService*:
+### Création d’un document RAML
+Dans ce qui suit, nous vous indiquons les étapes nécessaires pour créer un simple fichier RAML décrivant une API REST répondant aux recommandations décrites dans le cours.
 
-  * Ouvrir le projet téléchargé avec IntelliJ IDEA.
-  * Sous le répertoire *src/main/java* et dans le package *tn.insat.tpmicro.productservice*, créer la classe *Product* suivante:
+####  Création d’une API RAML
+Pour créer un nouveau projet RAML, aller vers *Packages -> API Workbench -> Create RAML Project* . Indiquer :
 
-```java
-package tn.insat.tpmicro.productservice;
+  * Le répertoire de travail
+  * Le titre de l’API : Par exemple Pet Shop
+  * La version : v1
+  * L’URI de base l’API : /petshop
+  * Cocher uniquement Use RAML 1.0
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import java.io.Serializable;
+Le projet obtenu aura l’allure suivante:
 
-@Entity
-public class Product implements Serializable {
-    @Id
-    @GeneratedValue
-    private int id;
-    private String name;
-    public Product(){
-    }
-    public Product(String name) {
-        this.name = name;
-    }
-    public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-}
-```
+![Workspace](img/tp5/workspace.png)
 
-Cette classe est annotée avec JPA, pour stocker ensuite les objets *Product* dans la base de données H2 grâce à Spring Data. Pour cela, créer l'interface *ProductRepository* dans le même package:
+#### Ajout de Ressources et Méthodes
 
-``` java
-package tn.insat.tpmicro.productservice;
+  * Sous l’onglet Palette de la rubrique Détails, cliquer sur *Add new ressource* pour ajouter une nouvelle ressource.
+  * Appeler la ressource */pets*
+  * Sélectionner les méthodes *get* et *post*
 
-import org.springframework.data.jpa.repository.JpaRepository;
+La ressource est désormais créée avec deux méthodes vides.
 
-public interface ProductRepository extends JpaRepository<Product , Integer> {
-}
-```
+#### Remplir les corps et réponses des méthodes
 
-Pour insérer les objets dans la base, nous utiliserons l'objet *Stream*. Pour cela, nous allons créer la classe *DummyDataCLR* :
+  * Mettre le focus sur la méthode *get:*
+  * Dans la Palette, cliquer sur *Create new response*
+  * Garder le code 200 pour la réponse et cliquer sur OK
+  * Une fois le code de la réponse généré, mettre le focus sur *200:*
+  * Cliquer sur *Create new Response Body*, puis dans la fenêtre qui apparait cliquer sur OK, pour générer une réponse de type par défaut *application/json*
+  * Pour la méthode post, générer directement un corps, en cliquant sur *Create new body*.
 
-```java
-package tn.insat.tpmicro.productservice;
+Le résultat apparaît comme suit:
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
+![Nouvelle API](img/tp5/new-api.png)
 
-import java.util.stream.Stream;
+#### Ajouter des sous-ressources
 
-@Component
-class DummyDataCLR implements CommandLineRunner {
+Pour définir le reste des méthodes (put et delete), destinées à agir sur un élément unique de la ressource pets, et les associer à une sous-ressource:
 
-    @Override
-    public void run(String... strings) throws Exception {
-        Stream.of("Pencil", "Book", "Eraser").forEach(s->productRepository.save(new Product(s)));
-        productRepository.findAll().forEach(s->System.out.println(s.getName()));
-    }
+  * Mettre le focus sur */pets*
+  * Cliquer sur *Add new resource*
+  * Taper */{id}* comme ressource URL, et sélectionner les méthodes put et delete.
+  * Ajouter un body à put de type application/json
+  * Ajouter une réponse à delete de type 204
 
-    @Autowired
-    private ProductRepository productRepository;
+#### Définir des types
+Pour définir le contenu des messages JSON manipulés, définir un type comme suit:
 
-}
-
-```
-
-Nous remarquons ici que le *productRepository* sera instancié automatiquement grâce au mécanisme d'injection de dépendances, utilisé par Spring.
-
-Lancer la classe principale. Une base de données H2 sera créée et le *CommandLineRunner* se chargera de lui injecter les données.
-
-!!! warning "Attention"
-    Prenez soin d'utiliser JDK 8!
-
-Pour exécuter votre application:
-
-  * Créer une configuration *mvn package* en faisant *Run->Edit Configurations* puis en créant une nouvelle configuration de type *Maven* avec la commande *package* comme suit:
-
-![Configuration mvn package](img/tp4/package.png)
-
-Un répertoire *target* sera créé, contenant les classes générées.
-
-  * Lancer ensuite la configuration Spring Boot *ProductServiceApplication* créée par défaut par IntelliJ. Le résultat sur la console devrait ressembler à ce qui suit:
-
-![Configuration Spring Boot](img/tp4/boot.png)
-
-!!! tip
-
-    Pour éviter de lancer à chaque fois les deux configurations, ajouter dans la deuxième configuration une dépendance vers la première, rajouter cette dernière dans la case *Before Launch: Build, Maven Goal, Activate Tool Window*, comme suit:
-
-    ![Ajout dépendance](img/tp4/dependanceConfig.png)
-
-Pour tester votre application, ouvrir la page http://localhost:8080 sur le navigateur. Vous obtiendrez (si tout se passe bien) le résultat suivant:
-
-![Service REST](img/tp4/rest1.png)
-
-Vous remarquerez que le service REST créé respecte automatiquement la norme [HATEOAS](https://spring.io/understanding/HATEOAS), qui offre dans les services REST, les liens pour naviguer dynamiquement entre les interfaces.
-
-Si vous naviguez vers la page http://localhost:8080/products, vous verrez la liste des produits, injectés par le CLR, comme suit:
-
-![Liste Produits](img/tp4/products.png)
-
-Pour voir les informations relatives à un seul produit, il suffit de connaître son ID: http://localhost:8080/products/1, par exemple.
-
-Pour rajouter une fonctionnalité de recherche par nom, par exemple, modifier l'interface *ProductRepository*, comme suit:
-
-```java
-package tn.insat.tpmicro.productservice;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-
-@RepositoryRestResource
-public interface ProductRepository extends JpaRepository<Product , Integer> {
-
-    @Query("select p from Product p where p.name like :name")
-    public Page<Product> productByName(@Param("name") String mc
-            , Pageable pageable);
-}
-
-```
-Pour tester cette fonctionnalité de recherche, aller au lien http://localhost:8080/products/search/productByName?name=Eraser
-
-Le résultat obtenu sera le suivant:
-
-![Résultat de la recherche par nom](img/tp4/search.png)
-
-La dépendance *Actuator* qui a été rajoutée au projet permet d'afficher des informations sur votre API REST sans avoir à implémenter explicitement la fonctionnalité. Par exemple, si vous allez vers http://localhost:8080/metrics, vous pourrez avoir plusieurs informations sur le microservice, tel que le nombre de threads, la capacité mémoire, la classe chargée en mémoire, etc. Mais d'abord, rajouter les deux lignes suivantes au fichier *src/main/resources/application.properties* pour (1) afficher des informations plus détaillées sur l'état du service et (2) désactiver les contraintes de sécurité par défaut:
-
-``` properties
-  endpoints.health.sensitive = false
-  management.security.enabled = false
-```
-
-Relancer le projet. Le résultat obtenu en exécutant http://localhost:8080/metrics sera comme suit:
-
-![Metrics](img/tp4/metrics.png)
-
-Les informations sur l'état du service sont affichées grâce à http://localhost:8080/health
-
-![Health](img/tp4/health.png)
-
-### Plusieurs Instances du Microservice **ProductService**
-
-Nous allons maintenant créer d'autres instances du même service et les déployer sur des ports différents.
-
-<center><img src="../img/tp4/archi-s2.png"></center>
-
-Pour lancer plusieurs instances du service *ProductService*, nous allons définir plusieurs configurations avec des numéros de port différents. Pour cela:
-
-  * Aller à *Run->Edit Configurations*, et copier la configuration *ProductServiceApplication* en la sélectionnant dans la barre latérale, et en cliquant sur l'icône ![copy](img/tp4/copy.png). Une nouvelle configuration sera créée.
-  * Changer son nom: *ProductServiceApplication:8081*
-  * Ajouter dans la case *Program Arguments* l'argument suivant:
-
-  ```properties
-  --server.port=8081
-  ```
-
-  * Lancer la configuration. Un nouveau service sera disponible à l'adresse: http://localhost:8081
-
-!!! tip
-    En exécutant la seconde configuration, un popup s'affiche dans IntelliJ, qui vous demande si vous voulez afficher le dashboard pour visualiser plusieurs instances Spring Boot, comme suit:
-
-    ![Run dashboard](img/tp4/run-dashboard.png)
-
-    Cliquer dessus, et choisir : *Show Run Configurations in Dashboard*. La vue suivante s'affiche, en bas de votre écran:
-
-    ![Spring Boot Dashboard](img/tp4/dashboard.png)
-
-    Vous pouvez désormais gérer vos instances dans cette fenêtre.
-
-  * Refaire les mêmes étapes pour créer une instance du service tourant sur le port 8082.
-
-### Microservice **ConfigService**
-
-Dans une architecture microservices, plusieurs services s'exécutent en même temps, sur des processus différents, avec chacun sa propre configuration et ses propres paramètres. Spring Cloud Config fournit un support côté serveur et côté client pour externaliser les configurations dans un système distribué. Grâce au service de configuration, il est possible d'avoir un endroit centralisé pour gérer les propriétés de chacun de ces services.
-
-<center><img src="../img/tp4/archi-s3.png"></center>
-
-Pour cela:
-
-  * Commencer par créer un service ConfigService dans *Spring Initializr*, avec les dépendances appropriées, comme indiqué sur la figure suivante:
-
-![Nouveau ConfigService](img/tp4/configservice.png)
-
-  * Ouvrir le projet dans une autre instance d'IntelliJ IDEA.
-  * Pour exposer un service de configuration, utiliser l'annotation *@EnableConfigServer* pour la classe *ConfigServiceApplication*, comme suit:
-
-```java
-package tn.insat.tpmicro.configservice;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.config.server.EnableConfigServer;
-
-@EnableConfigServer
-@SpringBootApplication
-public class ConfigServiceApplication {
-
-	public static void main(String[] args) {
-
-		SpringApplication.run(ConfigServiceApplication.class, args);
-	}
-}
-
-```
-
-  * Pour paramétrer ce service de configuration, ajouter dans son fichier *application.properties* les valeurs suivantes:
+  * Dans une nouvelle ligne au dessus de */pets*, taper *ty*, puis cliquer sur entrée
+  * Appeler le type *Pet*, puis définir les propriétés name, kind et price, comme suit:
 
 ```properties
-  server.port=8888
-  spring.cloud.config.server.git.uri=file:./src/main/resources/myConfig
+types:
+  Pet:
+    properties:
+      name: string
+      kind: string
+      price: number
 ```
 
-Ceci indique que le service de configuration sera lancé sur le port 8888 et que le répertoire contenant les fichiers de configuration se trouve dans le répertoire *src/main/resources/myConfig*. Il suffit maintenant de créer ce répertoire.
+  * Définir *Pet* comme type pour le corps de la méthode *post*, en écrivant: *type: Pet* au dessous de *application/json* de la méthode post
+  * Ajouter de même *Pet* comme type pour la méthode put, et *Pet[]* pour la méthode get.
 
-!!! tip
-    Pour pouvoir référencer un répertoire avec son chemin absolu, utiliser plutôt *file:///<chemin_absolu\>*.
+#### Extraction d’un type de ressources
+Pour générer un type de ressources à partir d’une ressource existante:
 
-  * Créer le répertoire *myConfig* à l'arborescence *src/main/resources*
-  * Créer dans ce répertoire le fichier *application.properties* dans lequel vous insérez l'instruction suivante:
+  * Mettre le focus sur la ressource */pets*
+  * Cliquer sur *Extract Resource Type* (si vous ne la trouvez pas, appuyer sur *entrée*)
+  * Taper *Collection* comme nom de type de ressource et déplacer les méthodes get et post de la fenêtre de gauche vers celle de droite
+  * Un nouveau *resourceType*, appelé *Collection*, est créé, contenant les méthodes get et post comme elles ont été définies sous la ressource */pets*. De plus, */pets* est désormais de type *Collection*.
+  * Répéter la procédure pour la ressource /{id}. On appellera le type *Member*.
+
+Le résultat devra ressembler à ce qui suit:
+
+<center><img src="../img/tp5/resource-type.png" width="50%"></center>
+
+#### Ajout de paramètres au type de ressource
+Pour rendre le type de ressource créé générique, il serait plus intéressant de paramétrer le type de réponse. Pour cela:
+
+  * Remplacer le terme *Pet* dans *Collection* et *Member* par ``` <<item>> ```.
+  * Corriger les erreurs qui s’affichent dans les ressources *Collection* et *Member* respectivement par ```{ Collection: {item : Pet} }``` et ```{ Member: {item : Pet} }```
+
+#### Ajout d’un exemple
+Pour ajouter un exemple d’animal, modifier le type *Pet* pour qu’il soit comme suit:
 
 ```properties
-global=xxxxx
+types:
+  Pet:
+    properties:
+      name: string
+      kind: string
+      price: number
+    example:
+      name: Snoopy
+      kind: Dog
+      price: 1000
 ```
 
-Ce fichier sera partagé entre tous les microservices utilisant ce service de configuration.
+#### Définir des paramètres pour les méthodes
+Nous nous proposons d’ajouter une autre méthode de type *get*, qui définit plusieurs paramètres.
 
-  * Le répertoire de configuration doit être un répertoire git. Pour cela:
-    - Ouvrir le terminal avec IntelliJ et naviguer vers ce répertoire.
-    - Initialiser votre répertoire: ```git init```
-    - Créer une entrée racine dans le repository: ```git add .```
-    - Faire un commit: ```git commit -m "add ."```
+  * Sous (et au même niveau que) *type* de */pets*, taper: *get:*
+  * Mettre le focus sur le *get* nouvellement créé
+  * Cliquer sur *Create new query parameter*
+  * Créer trois paramètres:
+    - *priceLessThan* de type *number*
+    - *priceMoreThan* de type *number*
+    - *petKind*, de type *enum;[bird, dog]*
 
-Revenir vers le projet *ProductService* et ajouter dans le fichier de configuration *application.properties*:
+Cela devra ressembler à ce qui suit:
+```properties
+get:
+    queryParameters:
+      priceLessThan: number
+      priceMoreThan: number
+      petKind:
+        enum:
+          - bird
+          - dog
+```
+
+Il est possible d’extraire certains des paramètres comme *Trait*, c’est à dire un critère de filtrage. Pour cela:
+
+  * Mettre le focus sur le *get*
+  * Cliquer sur *Extract trait*
+  * Nommer le trait *FiltrableByPrice*, et déplacer les méthodes *priceLessThan* et *priceMoreThan* vers la droite.
+
+Vous remarquerez que les deux paramètres choisis ont été enlevés de la méthode *get*, et remplacés par *is: [FilterableByPrice]*.
+
+Voici donc le résultat final du fichier RAML:
+```properties
+#%RAML 1.0
+traits:
+  FiltrableByPrice:
+    queryParameters:
+      priceLessThan: number
+      priceMoreThan: number
+resourceTypes:
+  Collection:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              type: <<item>>
+    post:
+      body:
+        application/json:
+          type: <<item>>
+  Member:
+    delete:
+      responses:
+        204:
+    put:
+      body:
+        application/json:
+          type: <<item>>
+title: Pet Shop
+version: v1
+baseUri: /petshop
+types:
+  Pet:
+    properties:
+      name: string
+      kind: string
+      price: number
+    example:
+      name: Snoopy
+      kind: Dog
+      price: 1000
+/pets:
+  type: { Collection: {item : Pet} }
+  get:
+    queryParameters:
+      petKind:
+        enum:
+          - bird
+          - dog
+    is: [FiltrableByPrice]
+  /{id}:
+    type: { Member: {item : Pet} }
+```
+
+#### Extraction de la librairie
+Pour extraire les types définis et les représenter dans une entité réutilisable:
+
+  * Mettre le focus en dehors de toutes les structures, par exemple sur *title*
+  * Cliquer sur *Extract Library*
+  * Appeler la librarie *PetTypes*
+  * Déplacer *Pet*, *Collection* et *Member* vers le panel de droite
+  * Cliquer sur *Extract*
+
+Un nouveau fichier contenant les trois types sélectionnés a été créé, puis inclus comme référence dans notre fichier principal.
+
+### API Management avec Anypoint Studio
+#### Anypoint Platform
+
+[Anypoint](https://www.mulesoft.com/platform/enterprise-integration) est une plateforme développée par l’entreprise Mulesoft qui offre les outils nécessaires pour la gestion d’APIs. Anypoint est classée par Gartner dans son Magic Quadrant dans la rubrique “Application Services Governance” d’Avril 2015 parmi les leaders du marché du API Management.
+
+![Magic Quadrant: Application Services Governance](img/tp5/gartner.png)
+
+#### Première Application
+Une fois Anypoint Studio téléchargé et installé, créer un nouveau projet, qu’on appellera *PremiereApplication*, et choisir Mule Server comme *Runtime Environment*.
+La fenêtre obtenue a l’allure suivante:
+
+![Workspace Mulesoft Studio](img/tp5/workspace-mule.png)
+
+!!!warning "Attention"
+    Anypoint Studio version 6.4.1 ne fonctionne qu'avec au plus JDK 1.8.0_151!
+
+Nous allons commencer par créer une simple application qui affiche un message dans un navigateur.
+
+  * À partir de la palette, glisser-déplacer les éléments graphiques suivants dans le canevas:
+    - **HTTP**: permet de se connecter aux ressources web via HTTP ou HTTPS.
+    - **Set Payload**: modifie le message affiché (payload) en "Hello World!".
+
+Votre flux aura l’allure suivante:
+
+<center><img src="../img/tp5/hello-app.png" width="30%"></center>
+
+Configurer votre composant HTTP :
+
+  * Ajouter une nouvelle *Connector Configuration*
+  * Garder les options par défaut. Votre hôte se lancera à l’URL 0.0.0.0:8081
+
+Configurer le composant Set Payload:
+
+  * Remplacer la valeur de l’élément *Value* par *Hello World!*
+  * Lancer votre application : Run -> Run As -> Mule Application. La console devrait afficher un message comme suit:
+
+![Console Helloworld](img/tp5/hello-console.png)
+
+Dans un navigateur, taper l'adresse: 0.0.0.0:8081. Le message suivant devra s'afficher:
+
+<center><img src="../img/tp5/hello-nav.png" width="30%"></center>
+
+#### Gestion des APIs avec APIKit
+APIKit est un toolkit open source spécialement créé pour faciliter l’implémentation d’APIs REST, en renforçant les bonnes pratiques de création d’APIs.
+
+Nous allons pour cela exposer l'API REST que nous avons créé dans le [TP précédent](tp4.md), grâce aux microservices Spring.
+
+##### *Création d'un fichier RAML pour le microservice*
+Pour représenter le microservice "ProductService", créer le fichier *api.raml* suivant avec Atom:
 
 ```properties
-spring.application.name = product-service
-spring.cloud.config.uri = http://localhost:8888
+#%RAML 1.0
+title: Micro-API
+version: v1
+baseUri: http://products.tn
+/products:
+  get:
+    description: List of all the products
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include products-example.json
+
 ```
 
-Redémarrer vos services. Pour consulter le service de configuration, aller à http://localhost:8888/product-service/master.
+Rajouter également (dans le même répertoire) un fichier *products-example.json*, où vous allez trouver un exemple de produits, tel qu'ils sont représentés par votre service sur ```http://localhost:9999/product-service/products```. Cela devrait ressembler à ce qui suit:
 
-Vous verrez le fichier JSON suivant:
-
-```javascript
+```JSON
 {
-  name: "product-service",
-  profiles: [
-    "master"
-  ],
-  label: null,
-  version: "6e1ea61d706133e2d8b62f40c6b784192fb58e8a",
-  state: null,
-  propertySources: [
-    {
-      name: "file:./src/main/resources/myConfig/application.properties",
-      source: {
-        global: "xxxxx"
+  "_embedded": {
+    "products": [
+      {
+        "name": "Sample Product",
+        "_links": {
+          "self": {
+            "href": "http://localhost:9999/product-service/products/1"
+          },
+          "product": {
+            "href": "http://localhost:9999/product-service/products/1"
+          }
+        }
       }
-    }
-  ]
-}
-```
-
-Comme le fichier *application.properties* contient toutes les propriétés partagées des différents microservices, nous aurons besoins d'autres fichiers pour les propriétés spécifiques à un microservice. Pour cela:
-
-  * Créer dans le répertoire *myConfig* un fichier *product-service.properties* pour le service *ProductService*.
-
-!!! warning "Attention"
-    Le nom du fichier doit correspondre à la propriété *spring.application.name* que vous avez saisi dans le fichier *application.properties* de votre microservice!
-
-  * Ajouter les propriétés de votre service, à savoir, par exemple:
-
-```properties
-  me=lilia.sfaxi@insat.rnu.tn
-```
-
-Relancer le microservice de configuration. En consultant l'url http://localhost:8888/product-service/master, nous remarquons l'ajout de la nouvelle propriété.
-
-```javascript hl_lines="13"
-{
-  name: "product-service",
-  profiles: [
-    "master"
-  ],
-  label: null,
-  version: "6e1ea61d706133e2d8b62f40c6b784192fb58e8a",
-  state: null,
-  propertySources: [
-    {
-      name: "file:./src/main/resources/myConfig/product-service.properties",
-      source: {
-        me: "lilia.sfaxi@insat.rnu.tn"
-      }
+    ]
+  },
+  "_links": {
+    "self": {
+      "href": "http://localhost:9999/product-service/products{?page,size,sort}",
+      "templated": true
     },
-    {
-      name: "file:./src/main/resources/myConfig/application.properties",
-      source: {
-        global: "xxxxx"
-      }
+    "profile": {
+      "href": "http://localhost:9999/product-service/profile/products"
+    },
+    "search": {
+      "href": "http://localhost:9999/product-service/products/search"
     }
-  ]
-}
-```
-
-Nous allons maintenant définir un appel REST à cette propriété. Pour cela:
-
-  * Créer la classe *ProductRestService* dans le projet *product-service*. Son code ressemblera à ce qui suit:
-
-```java
-package tn.insat.tpmicro.productservice;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-public class ProductRestService {
-
-  @Value("${me}")
-  private String me;
-
-  @RequestMapping("/messages")
-  public String tellMe(){
-      System.out.println("c'est moi qui ai répondu!");
-      return me;
+  },
+  "page": {
+    "size": 20,
+    "totalElements": 3,
+    "totalPages": 1,
+    "number": 0
   }
 }
+
+
 ```
 
-  * Redémarrer les trois instances du service, puis appeler dans votre navigateur le service en tapant: http://localhost:8080/messages. Vous verrez le résultat suivant sur le navigateur:
 
-![Service REST](img/tp4/rest-service.png)
 
-  * Consulter votre Spring Dashboard, vous verrez le message suivant dans la console de l'instance du service lancée sur le port 8080:
 
-![Service REST](img/tp4/rest-console.png)
+##### *Nouveau Projet de API Management*
+Créer un nouveau projet qu’on appellera *API_Project*:
 
-### Microservice **DiscoveryService**
+  * Choisir comme environnement d’exécution Mule Server.
+  * Cocher la case *Add APIKit components* et entrer votre fichier api.raml.
 
-Pour éviter un couplage fort entre microservices, il est fortement recommandé d'utiliser un service de découverte qui permet d'enregistrer les propriétés des différents services et d'éviter ainsi d'avoir à appeler un service directement. Au lieu de cela, le service de découverte fournira dynamiquement les informations nécessaires, ce qui permet d'assurer l'élasticité et la dynamicité propres à une architecture microservices.
+Un nouveau projet sera créé avec les fichiers *api.raml* et *products-example.json* ajouté sous le répertoire *src/main/api*, ainsi que des flux de gestion des différentes méthodes ajoutées par défaut dans le canevas. Vous retrouverez notamment:
 
-<center><img src="../img/tp4/archi-s4.png"></center>
+|Flux|Description|Figure|
+|---------|------------------------------------------------|-------------|
+| api-main | Flux principal, définissant un point d’accès HTTP, un routeur APIKit et une référence à une stratégie d'exception   | ![api-main](img/tp5/api-main.png)|
+| action:/ressource:api-config | Un Backend flow pour chaque paire de ressource/action dans le fichier RAML. Par exemple, get:/products:api-config représente l’action get de la ressource products   | ![get-products](img/tp5/get-products.png)|
+| Exception Strategy Mapping | Flux fournis par Studio pour configurer les messages d’erreur dans un format HTTP-status-code-friendly | ![errors](img/tp5/error-mapping.png) |
 
-Pour réaliser cela, Netflix offre le service [Eureka Service Registration and Discovery](https://spring.io/guides/gs/service-registration-and-discovery/), que nous allons utiliser dans notre application.
+##### *Configuration du flux principal*
 
-  * Revenir à *Spring Initializr* et créer un nouveau projet Spring Boot intitulé *discovery-service* avec les dépendances *Eureka Server* et *Config Client*.
-  * Lancer le projet avec IntelliJ.
-  * Dans la classe *DiscoveryServiceApplication*, ajouter l'annotation *EnableEurekaServer*.
+  * Dans les propriétés du composant HTTP, définir le Path par: /prod-services/*.
+  * Dans le *Connector Configuration*, cliquer sur l'icône ![config](img/tp5/config.png), puis cliquer sur *OK* pour valider le host (0.0.0.0) et le port (8081)
 
-```java
-package tn.insat.tpmicro.discoveryservice;
+!!!note "Remarque"
+    Vous pouvez changer ici le port défini par défaut, pour éviter les conflits avec vos microservices.
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+Lancer le projet comme *Mule Project*. Une *APIKit Console* s'affiche comme suit:
 
-@EnableEurekaServer
-@SpringBootApplication
-public class DiscoveryServiceApplication {
+![ApiKit Console](img/tp5/api-console.png)
 
-	public static void main(String[] args) {
-		SpringApplication.run(DiscoveryServiceApplication.class, args);
-	}
+Pour tester votre API, cliquer par exemple sur le bouton *GET* devant la ressource */products*. la Console affichera alors la réponse (le produit *Sample Product*), qui a été définie comme exemple dans le fichier RAML de départ.
+
+![Get Products](img/tp5/products-response.png)
+
+Pour visualiser le résultat sur le navigateur, taper le chemin de la requête comme suit:
+
+
+```URL
+http://localhost:8081/prod-services/products
+```
+
+Vous obtiendrez le résultat suivant:
+
+<center><img src="../img/tp5/get-prod-response.png" width="75%"></center>
+
+#### Mapping de l'API avec votre microservice ProductService
+Pour relier votre API créée avec le microservice Proxy (créé dans le TP précédent), et qui est déployé à l'adresse suivante:
+
+```URL
+http://localhost:9999/product-service/products
+```
+
+  * Supprimer le *Set Payload* du flow : _get:/products:api-config_
+  * Ajouter un connecteur HTTP dans la partie *Source*
+  * Le configurer comme suit:
+    - Path: /prod-services
+    - Cliquer sur ![config](img/tp5/config.png) puis sur OK pour valider le hôte et port.
+  * Ajouter un connecteur HTTP dans la partie *Process*
+  * Le configurer comme suit:
+    - Devant *Connector Configuration*, cliquer sur ![add](img/tp5/add.png) pour ajouter une nouvelle configuration.
+    - Cela représente les informations du service auquel on va accéder. Définir le Host par *localhost*, le port par *9999*, et le base path par */product-service*
+    - Cliquer sur OK pour valider
+  * Dans la partie *URL Settings*, définir :
+    - Path: /products
+    - Method: Get
+  * Sauvegarder, et lancer le service.
+
+Tester le service sur le navigateur avec l'URL:
+``` http://localhost:8081/prod-services ```. Vous obtiendrez la liste complète des produits, tels que retournés par le service *ProductService* initial, comme suit:
+
+```JSON
+{
+  "_embedded": {
+    "products": [
+      {
+        "name": "Pencil",
+        "_links": {
+          "self": {
+            "href": "http://localhost:9999/product-service/products/1"
+          },
+          "product": {
+            "href": "http://localhost:9999/product-service/products/1"
+          }
+        }
+      },
+      {
+        "name": "Book",
+        "_links": {
+          "self": {
+            "href": "http://localhost:9999/product-service/products/2"
+          },
+          "product": {
+            "href": "http://localhost:9999/product-service/products/2"
+          }
+        }
+      },
+      {
+        "name": "Eraser",
+        "_links": {
+          "self": {
+            "href": "http://localhost:9999/product-service/products/3"
+          },
+          "product": {
+            "href": "http://localhost:9999/product-service/products/3"
+          }
+        }
+      }
+    ]
+  },
+  "_links": {
+    "self": {
+      "href": "http://localhost:9999/product-service/products{?page,size,sort}",
+      "templated": true
+    },
+    "profile": {
+      "href": "http://localhost:9999/product-service/profile/products"
+    },
+    "search": {
+      "href": "http://localhost:9999/product-service/products/search"
+    }
+  },
+  "page": {
+    "size": 20,
+    "totalElements": 3,
+    "totalPages": 1,
+    "number": 0
+  }
 }
 
+
 ```
 
-  * Ajouter les propriétés suivantes dans son fichier *application.properties*.
+#### Transformation du résultat du microservice ProductService
+Si vous désirez retourner un résultat différent du Microservice initial, en ne laissant par exemple que les noms des produits, sans tous les autres éléments et liens supplémentaires, utiliser un objet *Transform Message*
 
-```properties
-spring.application.name=discovery-service
-spring.cloud.config.uri=http://localhost:8888
-```
+  * Copier le flow get:/products pour créer un autre flow identique
+  * Modifier le Path du connecteur HTTP source, pour  */prod-services/names*
+  * Rajouter un objet *Transform Message* juste après le connecteur HTTP de droite (celui de la partie Process). Le flow devra ressembler à ce qui suit:
 
-  * Dans le projet *config-service*, créer un fichier *discovery-service.properties* sous le répertoire *myConfig*.
-  * Ajouter les propriétés suivantes pour (1) définir le port par défaut du service de découverte et (2) empêcher un auto-enregistrement du service Eureka.
+<center><img src="../img/tp5/flow-transform.png" width="50%"></center>
 
-```properties
-server.port = 8761
-eureka.client.fetch-registry = false
-eureka.client.register-with-eureka = false
-```
+  * Configurer l'objet *Transform Message*:
+    - L'interface suivante représente les mappings à faire entre les entrées du service et sa sortie.
 
-Pour consulter le service Eureka, aller à http://localhost:8761, l'interface suivante s'affiche:
+    <center><img src="../img/tp5/transform-mapping.png" width="100%"></center>
 
-![Console Eureka](img/tp4/eureka-console.png)
+    - Cliquer sur *Define Metadata* du payload en entrée (à gauche) gauche)
+    - Cliquer sur *Add*
+    - Entrer le nom du type en entrée, par exemple *products*
+    - Indiquer comme type *JSON*
+    - Indiquer dans la liste déroulante suivante que le fichier donné est un *Example*, puis choisir le fichier *products-example.json* que vous aviez créé.
+    - Cliquer sur Select. Le schéma du fichier donné est chargé dans la partie *Input* de *Transform Message*.
+    - Pour représenter le format de sortie désiré, créer un fichier appelé *names.json* à l'endroit de votre préférence sur votre ordinateur.
+    - Saisir le contenu suivant dans *names.json*:
+    ```json
+      {"name":"prod"}
+    ```
+    - Cliquer sur *Define Metadata* de sortie (à droite).
+    - Ajouter un nouveau type que vous appellerez *names*
+    - Définir comme type *Json* et charger le fichier *names.json* que vous venez de créer.
+    - Valider.
+    - Maintenant que les deux schémas (entrée et sortie) sont définis, créer les associations de votre choix. Dans notre cas, nous allons associer le champ *_embedded.products.name* en entrée au champ *name* en sortie, comme suit:
+    ![Mapping](img/tp5/names-mapping.png)
+    - Sauvegarder, et lancer le service.
 
-Nous remarquons qu'aucune instance n'est inscrite dans le serveur de découverte. Nous allons donc modifier le code de la classe *ProductServiceApplication* pour que le microservice *ProductService* s'enregistre:
+Pour tester le service, lancer dans un navigateur: ```http://localhost:8081/prod-services/names```. Vous obtiendrez le résultat suivant:
 
-```java hl_lines="7"
-package tn.insat.tpmicro.productservice;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-
-@EnableDiscoveryClient
-@SpringBootApplication
-public class ProductServiceApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(ProductServiceApplication.class, args);
-	}
+```JSON
+{
+  "name": [
+    "Pencil",
+    "Book",
+    "Eraser"
+  ]
 }
-
 ```
-
-Redémarrer les trois instances de services *ProductService* et actualiser la fenêtre de *Eureka*, vous verrez qu'un seul service est déclaré, avec trois adresses différentes.
-
-![Services sur Eureka](img/tp4/eureka-services.png)
-
-### Microservice **ProxyService**
-L'architecture microservices, en fournissant un ensemble de services indépendants et faiblement couplés, se trouve confrontée au challenge de fournir une interface unifiée pour les consommateurs, de manière à ce qu'ils ne voient pas la décomposition à faible granularité de vos services. C'est pour cela que l'utilisation d'un service proxy, responsable du routage des requêtes et de la répartition de charge, est important.
-
-<center><img src="../img/tp4/archi-s5.png"></center>
-
-Netflix offre le service [Zuul](https://github.com/Netflix/zuul) pour réaliser cela. Pour créer votre microservice Proxy:
-
-  * Aller à *Spring Initializr*.
-  * Créer le projet *proxy-service* avec les dépendances suivantes: Zuul, Web, HATEOAS, Actuator, Config Client et Eureka Discovery.
-  * Ouvrir le service avec IntelliJ IDEA.
-  * Ajouter à la classe *ProxyServiceApplication* l'annotation *@EnableZuulProxy*, ainsi que *@EnableDiscoveryClient* pour que le proxy soit également enregistré dans le service de découverte.
-  * Ajouter les propriétés *spring.application.name*  et *spring.cloud.config.uri* dans le fichier *application.properties* du service proxy.
-  * Créer le fichier *proxy-service.properties* dans le répertoire *myConfig* du service de configuration, dans lequel vous allez fixer le port du service proxy à 9999.
-
-En lançant le service Proxy, vous remarquerez qu'il est rajouté dans Eureka.
-
-![Service Proxy dans Eureka](img/tp4/proxy-eureka.png)
-
-Si vous exécutez la requête http://localhost:9999/product-service/messages plusieurs fois, vous remarquerez que l'affichage *c'est moi qui ai répondu!* s'affichera sur les consoles des trois instances respectivement, à tour de rôle.

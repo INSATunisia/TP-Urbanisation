@@ -9,10 +9,9 @@
 Création et consommation de web services SOAP et REST en utilisant l'outil Talend.
 
 ## Outils et Versions
-* [Talend Open Studio for ESB](https://www.talend.com/download_page_type/talend-open-studio/) Version: 7.2
-* [Java](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html) Version 1.8
-* [MySQL](https://dev.mysql.com/downloads/) Version 5.7
-* [SOAPUI](https://www.soapui.org/downloads/soapui.html) Version 5.3
+* [Talend Open Studio for ESB](https://sourceforge.net/projects/talendesb/) Version: 8.0.1
+* [MySQL](https://dev.mysql.com/downloads/) Version _latest_
+* [SOAPUI](https://www.soapui.org/downloads/soapui.html) Version 5.7.0
 
 ## Talend ESB
 Talend ESB est une solution légère, robuste et modulaire pour la création de services
@@ -71,10 +70,27 @@ L’interface utilisateur de TOS-ESB se présente comme suit:
 
 
 ## Service Web SOAP : Helloworld
+
+Commençons par installer Talend ESB en dézippant simplement le fichier téléchargé. Aller ensuite au répertoire Studio, et lancer l'exécutable associé à votre système d'exploitation. 
+
+??? fail "Erreur possible pour les utilisateurs MAC"
+
+    Pour ceux qui disposent d'un MAC, si l'erreur suivante apparaît: _The TOS_ESB-macosx-cocoa executable launcher was unable to locate its companion shared library._, réaliser les actions suivantes (ceci se fera une seule fois):
+
+    * Ouvrir un terminal sous le répertoire Studio
+    * Lancer la commande suivante:
+    ```ssh
+    xattr -c TOS_ESB-macosx-cocoa.app
+    ```
+    * Lancer ensuite l'exécutable une deuxième fois. Cela devra le débloquer. 
+
 Nous ne pouvons pas configurer un ESB avant de savoir créer, déployer et exécuter des
 services web avec les outils Talend ESB. Nous allons donc commencer avec le
 traditionnel Hello World. Pour cela, il faut commencer par créer un projet de votre choix.
-Dans toute cette partie, nous nous trouverons dans la perspective Integration.
+Dans toute cette partie, nous nous trouverons dans la perspective _Integration_.
+
+
+
 
 ### Créer le service SOAP
 

@@ -1,14 +1,14 @@
-site_name: TP eServices
-site_description: Les Travaux Pratiques du cours eServices
+site_name: TP Urbanisation des Systèmes d'Information
+site_description: Les Travaux Pratiques du cours Urbanisation des Systèmes d'Information
 site_author: Lilia Sfaxi
-site_url: http://INSATunisia.github.io/TP-eServices/
+site_url: http://INSATunisia.github.io/TP-Urbanisation/
 
 # Repository
-repo_name: INSATunisia/TP-eServices
-repo_url: https://github.com/INSATunisia/TP-eServices
+repo_name: INSATunisia/TP-Urbanisation
+repo_url: https://github.com/INSATunisia/TP-Urbanisation
 
 # Copyright
-copyright: 'Copyright &copy; 2017 - 2018 Lilia Sfaxi'
+copyright: 'Copyright &copy; 2022 Lilia Sfaxi'
 # Theme directory
 plugins:
   - search
@@ -66,6 +66,5 @@ pages:
    - TP1 - Services Web REST et SOAP avec Talend: 'tp1.md'
    - TP2 - Orchestration de Services avec Camunda: 'tp2.md'
    - TP3 - Mise en Place d’un ESB avec Talend ESB: 'tp3.md'
-   - TP4 - Microservices avec Spring Boot et Spring Cloud: 'tp4.md'
-   - TP5 - API Management avec Atom et Anypoint: 'tp5.md'
+   - TP4 - API Management avec Atom et Anypoint: 'tp5.md'
 
