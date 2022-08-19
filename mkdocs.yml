@@ -1,0 +1,71 @@
+site_name: TP eServices
+site_description: Les Travaux Pratiques du cours eServices
+site_author: Lilia Sfaxi
+site_url: http://INSATunisia.github.io/TP-eServices/
+
+# Repository
+repo_name: INSATunisia/TP-eServices
+repo_url: https://github.com/INSATunisia/TP-eServices
+
+# Copyright
+copyright: 'Copyright &copy; 2017 - 2018 Lilia Sfaxi'
+# Theme directory
+plugins:
+  - search
+  - autolink_references:
+        autolinks:
+            - reference_prefix: AF-
+              target_url: https://linear.com/AF-<num>
+            - reference_prefix: PROJ-
+              target_url: https://jiracloud.com/PROJ-<num> 
+  - git-revision-date-localized:
+      type: timeago
+  - minify:
+      minify_html: true
+
+markdown_extensions:
+  - footnotes
+  - admonition
+  - meta
+  - toc:
+      permalink: true
+      baselevel: 2
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+theme:
+  name: material
+  favicon: img/favicon.ico
+  logo: "img/logo.png"
+  palette:
+    text: 'Ubuntu'
+    code: 'Ubuntu Mono'
+    accent: Amber
+    primary: Pink
+extra_css:
+  - 'stylesheets/extra.css'
+  - 'stylesheets/links.css'
+
+# Page tree
+pages:
+   - 'index.md'
+   - TP1 - Services Web REST et SOAP avec Talend: 'tp1.md'
+   - TP2 - Orchestration de Services avec Camunda: 'tp2.md'
+   - TP3 - Mise en Place d’un ESB avec Talend ESB: 'tp3.md'
+   - TP4 - Microservices avec Spring Boot et Spring Cloud: 'tp4.md'
+   - TP5 - API Management avec Atom et Anypoint: 'tp5.md'
+
