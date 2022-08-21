@@ -1,4 +1,4 @@
-# TP-eServices
+# TP Urbanisation des SI
 
 Pour pouvoir lancer ce TP en local, il va falloir suivre les instructions suivantes:
 

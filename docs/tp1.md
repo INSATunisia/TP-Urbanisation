@@ -1,6 +1,8 @@
 # TP1 - Services Web REST et SOAP avec Talend
 
+<center>
 ![Web Services](img/ws.png)
+</center>
 
 ## Télécharger PDF
 [![Download TP1](img/pdf.png)](tp1.pdf)
@@ -42,7 +44,9 @@ applications REST, des services de données et des routes de messages.
 Le déploiement d’applications avec TOS-ESB utilise principalement les trois blocs
 représentés dans cette figure:
 
+<center>
 ![Talend](img/tp1/talend.png)
+</center>
 
 * Le bloc bleu représente l’API Talend Studio, où il est possible d’intégrer des
 données, des services ou des applications
@@ -99,10 +103,11 @@ Pour créer un nouveau service de type SOAP:
 * Clic-droit sur *Services* de votre Repository, et choisir *Create Service*. Appeler le
 service *HelloWorldService*. Cliquer sur Suivant.
 * On vous propose soit de créer un nouveau WSDL, soit de choisir un WSDL existant. Dans notre cas, nous créons un nouveau WSDL. Cliquer sur Terminer.
-* Un service simple qui reçoit une chaîne de caractères et en produit une autre est
-créé. Une vue graphique de son WSDL s’affiche.
+* Un service simple qui reçoit une chaîne de caractères et en produit une autre est créé. Une vue graphique de son WSDL s’affiche.
 
+<center>
 ![HelloWorld Service](img/tp1/hw-soap.png)
+</center>
 
 ### Configurer le service SOAP
 
@@ -148,7 +153,9 @@ Il est possible de tester votre service de plusieurs manières. L'une d'elles es
 * Cliquer sur l'icône SOAP en haut de la fenêtre principale
 * Donner un nom au projet (par exemple Helloworld) et entrer l'adresse du fichier WSDL du service, comme suit:
 
+<center>
 ![SOAPUI SOAP Project](img/tp1/soapui-soap-project.png)
+</center>
 
 * Double cliquer sur la requête générée, et remplir le *<in>?</in>* par un nom de votre choix.
 * Cliquer sur la flèche verte. Le résultat devra ressembler au suivant:
@@ -191,11 +198,12 @@ Nous allons maintenant montrer comment exposer un service REST pour interroger u
 
 ### Création de la base de données
 
-Nous allons commencer par créer une base de données (MySQL dans mon cas), appelée *eservices-tp1* avec une table, que nous appellerons *user*. Cette table contient les champs *id*, *firstname* et *lastname*. Remplir ensuite la base à votre guise, de manière à avoir au moins 4 entrées.
+Nous allons commencer par créer une base de données (MySQL dans mon cas), appelée *urbanisation-tp1* avec une table, que nous appellerons *user*. Cette table contient les champs *id*, *firstname* et *lastname*. Remplir ensuite la base à votre guise, de manière à avoir au moins 4 entrées.
 
 Elle devra ressembler à ce qui suit:
-
-![Base de données](img/tp1/rest-db.png)
+<center>
+<img width="300pt" src="../img/tp1/rest-db.png">
+</center>
 
 ### Ajout de la connexion à la base avec Talend
 Pour configurer une connexion à cette base de données avec Talend, suivre les étapes suivantes:
@@ -267,7 +275,7 @@ Il suffira dans notre cas de:
 ```
 
 !!! tip "Remarque"
-    globalMap est une variable globale permettant de stocker les informations de la requête, comme par exemple ses paramètres.
+    globalMap est une variable globale permettant de stocker les informations de la requête, comme par exemple ses paramètres. Ici on suppose que le nom de votre lien est _getUsers_. Si ce n'est pas le cas changez-le dans la requête. 
 
 #### Configuration de tXMLMap
 Cliquer deux fois sur la *tXMLMap* pour la configurer.
@@ -343,7 +351,7 @@ Si aucun paramètre n'est indiqué: `http://localhost:8088/users` cela donnera:
   </users>
 ```
 #### Avec SOAPUI
-### Tester le service SOAP
+### Tester le service REST
 Il est possible de tester votre service REST avec *SOAPUI*.
 
 * Lancer SOAPUI
@@ -362,7 +370,9 @@ Il est possible de tester votre service REST avec *SOAPUI*.
 
 Pour créer un consommateur pour le web service REST avec Talend, il suffit de créer le Job suivant:
 
-![Consommateur REST](img/tp1/rest-consumer.png)
+<center>
+<img width="400pt" src="../img/tp1/rest-consumer.png">
+</center>
 
 Configurer le *tRestClient* comme suit:
 
