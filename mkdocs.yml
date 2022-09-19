@@ -51,11 +51,29 @@ theme:
   name: material
   favicon: img/favicon.ico
   logo: "img/logo.png"
+  font: 
+    text: 'Questrial'
+    code: 'Source Code Pro'
   palette:
-    text: 'Ubuntu'
-    code: 'Ubuntu Mono'
-    accent: Amber
-    primary: Pink
+    
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+      accent: amber
+      primary: amber
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+      accent: amber
+      primary: amber
+    
+
 extra_css:
   - 'stylesheets/extra.css'
   - 'stylesheets/links.css'
@@ -64,6 +82,7 @@ extra_css:
 # Page tree
 pages:
    - 'index.md'
+   - Projet: 'projet.md'
    - TP1 - Services Web REST et SOAP avec Talend: 'tp1.md'
    #- TP2 - Orchestration de Services avec Camunda: 'tp2.md'
    #- TP3 - Mise en Place d’un ESB avec Talend ESB: 'tp3.md'

@@ -1,20 +1,20 @@
-# TP1 - Services Web REST et SOAP avec Talend
 
 <center>
 ![Web Services](img/ws.png)
 </center>
 
-## Télécharger PDF
+# Télécharger PDF
 [![Download TP1](img/pdf.png)](tp1.pdf)
 
-## Objectifs du TP
+# Objectifs du TP
 Création et consommation de web services SOAP et REST en utilisant l'outil Talend.
 
-## Outils et Versions
+# Outils et Versions
 * [Talend Open Studio for ESB](https://sourceforge.net/projects/talendesb/) Version: 8.0.1
 * [MySQL](https://dev.mysql.com/downloads/) Version _latest_
 * [SOAPUI](https://www.soapui.org/downloads/soapui.html) Version 5.7.0
 
+# Présentation de Talend
 ## Talend ESB
 Talend ESB est une solution légère, robuste et modulaire pour la création de services
 web sécurisés ainsi que pour l’intégration d’applications nouvelles ou existantes.
@@ -73,7 +73,7 @@ L’interface utilisateur de TOS-ESB se présente comme suit:
 
 
 
-## Service Web SOAP : Helloworld
+# Service Web SOAP : Helloworld
 
 Commençons par installer Talend ESB en dézippant simplement le fichier téléchargé. Aller ensuite au répertoire Studio, et lancer l'exécutable associé à votre système d'exploitation. 
 
@@ -96,7 +96,7 @@ Dans toute cette partie, nous nous trouverons dans la perspective _Integration_.
 
 
 
-### Créer le service SOAP
+## Créer le service SOAP
 
 Pour créer un nouveau service de type SOAP:
 
@@ -109,7 +109,7 @@ service *HelloWorldService*. Cliquer sur Suivant.
 ![HelloWorld Service](img/tp1/hw-soap.png)
 </center>
 
-### Configurer le service SOAP
+## Configurer le service SOAP
 
 Pour pouvoir configurer votre service, il faut créer un Job. Mais d’abord:
 
@@ -146,7 +146,7 @@ réponse, en lui concaténant le célèbre "Hello". Pour cela:
 * Lancer votre Job (cela permettra de publier votre service web sur le port 8090).
 Vérifier que votre fichier WSDL existe bien.
 
-### Tester le service SOAP
+## Tester le service SOAP
 Il est possible de tester votre service de plusieurs manières. L'une d'elles est d'utiliser un outil léger de test appelé *SOAPUI*.
 
 * Lancer SOAPUI
@@ -162,7 +162,7 @@ Il est possible de tester votre service de plusieurs manières. L'une d'elles es
 
 ![SOAPUI request-response](img/tp1/soapui-soap-req-resp.png)
 
-## Consommateur du WebService SOAP
+## Consommer le service SOAP
 
 Nous allons maintenant créer un consommateur pour notre service avec talend open studio. Pour cela:
 
@@ -192,11 +192,11 @@ service.
 
 ![Helloworld Résultat](img/tp1/hw-result.png)
 
-## Service Web REST : Interrogation d'une base de données
+# Service Web REST : Interrogation d'une base de données
 
 Nous allons maintenant montrer comment exposer un service REST pour interroger une base de données.
 
-### Création de la base de données
+## Créer et se connecter à la base de données
 
 Nous allons commencer par créer une base de données (MySQL dans mon cas), appelée *urbanisation-tp1* avec une table, que nous appellerons *user*. Cette table contient les champs *id*, *firstname* et *lastname*. Remplir ensuite la base à votre guise, de manière à avoir au moins 4 entrées.
 
@@ -205,7 +205,6 @@ Elle devra ressembler à ce qui suit:
 <img width="300pt" src="../img/tp1/rest-db.png">
 </center>
 
-### Ajout de la connexion à la base avec Talend
 Pour configurer une connexion à cette base de données avec Talend, suivre les étapes suivantes:
 
 * Dans les Métadonnées, sous *Connexions aux bases de données*, clic-droit, puis choisir: *Créer une connexion*.
@@ -216,7 +215,7 @@ Pour configurer une connexion à cette base de données avec Talend, suivre les 
 * Une fois la connexion créée, importer son schéma. Pour cela, clic-droit sur Metadonnées -> Connexions... -> **<nom-connexion>** et choisir: *Récupérer le schéma*.
 * Sélectionner la table *user*, et vérifier que les champs sont bien chargés dans la partie Schéma.
 
-### Création du service REST
+## Créer le service REST
 Nous allons maintenant créer le service REST. Pour cela, créer un nouveau job, qu'on appellera *DBService*, puis glisser les composants suivants:
 
 * **tRestRequest** : Pour définir la requête REST que le client doit appeler
@@ -235,11 +234,11 @@ Le job aura l'allure suivante:
 
 ![Service REST](img/tp1/rest-service.png)
 
-### Configuration du service REST
+## Configurer le service REST
 Nous désirons configurer le service de manière à ce que, quand un consommateur appelle l'URI:
 `http://localhost:8088/users?from=1&to=3`, le service retourne une réponse contenant les utilisateurs (id, nom et prénom) de la base de données dont les ids figurent entre 1 et 3.
 
-#### Configuration de tRestRequest
+### tRestRequest
 tRestRequest devra être configuré comme suit:
 
 * La valeur de *Endpoint URL* devra être: `"http://localhost:8088/users"`
@@ -261,7 +260,7 @@ tRestRequest devra être configuré comme suit:
     !!! tip "Remarque"
         Cela indique que ces champs sont des paramètres de requête, pas définies dans le Path.
 
-#### Configuration de user
+### La table user
 Puisque le composant *user* a été créé à partir de la connexion à votre base MySQL, il contient déjà les informations de connexion nécessaires.
 
 Il suffira dans notre cas de:
@@ -277,7 +276,7 @@ Il suffira dans notre cas de:
 !!! tip "Remarque"
     globalMap est une variable globale permettant de stocker les informations de la requête, comme par exemple ses paramètres. Ici on suppose que le nom de votre lien est _getUsers_. Si ce n'est pas le cas changez-le dans la requête. 
 
-#### Configuration de tXMLMap
+### tXMLMap
 Cliquer deux fois sur la *tXMLMap* pour la configurer.
 
 * Dans la colonne de droite, ajouter (si ce n'est déjà fait) une colonne intitulée *body* dont le type est *Document*.
@@ -310,8 +309,8 @@ La configuration finale sera donc comme suit:
 
 Les autres composants devront rester tels qu'ils sont par défaut. Il suffira maintenant de lancer le service, en cliquant sur *Exécuter*.
 
-### Tester le Service
-#### Dans un navigateur
+## Tester le service REST
+### Dans un navigateur
 Pour tester le service, il suffit d'ouvrir un navigateur, et de taper la requête de votre choix.
 
 Par exemple, la requête suivante : `http://localhost:8088/users?from=2&to=4` donnera:
@@ -350,8 +349,7 @@ Si aucun paramètre n'est indiqué: `http://localhost:8088/users` cela donnera:
       </user>
   </users>
 ```
-#### Avec SOAPUI
-### Tester le service REST
+### Avec SOAPUI
 Il est possible de tester votre service REST avec *SOAPUI*.
 
 * Lancer SOAPUI
@@ -366,7 +364,7 @@ Il est possible de tester votre service REST avec *SOAPUI*.
 
 ![SOAPUI REST request-response](img/tp1/soapui-rest-req-resp.png)
 
-## Consommateur du WebService REST
+## Consommer le service REST
 
 Pour créer un consommateur pour le web service REST avec Talend, il suffit de créer le Job suivant:
 
@@ -381,3 +379,12 @@ Configurer le *tRestClient* comme suit:
 Exécuter. Le résultat devrait ressembler à ceci:
 
 ![Résultat du consommateur REST](img/tp1/rest-cons-result.png)
+
+#Homework
+
+!!! note "Projet E1"
+    Pour la séance de TP prochaine, vous devez réaliser l'étape 1 du projet, qui consiste à:
+    
+    * Trouver le concept de votre entreprise (nom, logo, métier, et départements)
+    * Réaliser le tutoriel : Archisurance (voir les supports du projet)
+    * Commencer à réaliser les diagrammes de votre propre entreprise.
