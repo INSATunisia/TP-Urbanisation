@@ -1,5 +1,3 @@
-# TP3 - Mise en Place d’un ESB avec Talend ESB
-
 ![ESB](img/esb.png)
 
 ## Télécharger PDF
@@ -10,9 +8,8 @@
 2. Gestion du failover et répartition de charges, monitoring et authentification avec Talend ESB.
 
 ## Outils et Versions
-* [Talend Open Studio for ESB](https://www.talend.com/download_page_type/talend-open-studio/) Version: 6.3.0
-* [DB Visualizer](https://www.dbvis.com/download/) Version 10.0
-* [Java](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html) Version 1.8.0_121
+* [Talend Open Studio for ESB](https://sourceforge.net/projects/talendesb/) Version: 8.0.1
+* [DBeaver Community](https://dbeaver.io/download/) Version 22.2.1
 
 ## Configuration et Utilisation de l'ESB Talend
 
@@ -30,7 +27,9 @@ Nous allons maintenant configurer la deuxième instance de l’ESB (dans *altern
 <center><img src="../img/tp3/run-ESB2.png"></center>
 
 !!! warning "Attention"
-    Le premier contenaire ne doit pas être en exécution, sinon il y'aura un conflit d'adresses. Il faut d'abord configurer le second contenaire pour qu'il se lance sur un port différent, ce que nous allons faire dans l'étape suivante.
+    * Il faudra peut-être downgrader votre version de Java si vous êtes sur la 17 (la version recommandée ici est la 11).. sorry :sweat_smile:
+    * Le premier contenaire ne doit pas être en exécution, sinon il y'aura un conflit d'adresses. Il faut d'abord configurer le second contenaire pour qu'il se lance sur un port différent, ce que nous allons faire dans l'étape suivante.
+
 
   * **Configurer l'ESB** : dans l’invite de commande affichée, taper:
 
@@ -73,21 +72,21 @@ Les routes permettent de définir le comportement que doit prendre le message se
   * Créer une nouvelle route en cliquant-droit sur *Routes -> Créer une Route*. Nous allons l’appeler FiltrageRoute.
   * Définir votre route de manière à ce qu’elle ressemble à ce qui suit:
 
-<center><img src="../img/tp3/filtrage-route.png"></center>
+<center><img src="../img/tp3/filtrage-route.png" width="500" height="300"></center>
 
   * Les composants utilisés sont:
 
-    - **cCXF** : fournit l'intégration avec Apache CXF pour la connexion aux services JAX-WS.
+    - **cSOAP** : fournit l'intégration avec Apache CXF pour la connexion aux services JAX-WS.
     - **MessageRouter** : route des messages dans différents canaux selon des conditions spécifiées.
 
-  * Configurer la condition *when*, en précisant que c’est une condition de type simple, dont le texte est :
+  * Configurer la condition *when*, en précisant que c’est une condition de type **_simple_**, dont le texte est :
 
 ```bash
     "${bodyAs(String)} contains 'Alice'"
 ```
-  Cela veut dire que, si le corps du message contient *Alice*, la requête sera routée vers le composant *cCXF_2*.
+  Cela veut dire que, si le corps du message contient *Alice*, la requête sera routée vers le composant *cSOAP_2*.
 
-  * Configurer le composant cCXF_1:
+  * Configurer le composant cSOAP_1:
 
     * Adresse: http://localhost:8042/services/HelloWorldService
     * WSDL: http://localhost:8040/services/HelloWorldService?WSDL.
@@ -96,10 +95,19 @@ Les routes permettent de définir le comportement que doit prendre le message se
 
     Remarquez ici que le port utilisé pour l'adresse est 8042: c'est le port choisi pour le service façade fourni par la route. Le WSDL utilisé, par contre, est celui du service initial, exposé sur le port 8040, donc sur le premier ESB.
 
-  * Configurer l’adresse de cCXF_2 sur le port 8040, et celle de cCXF_3 sur le port 8041, tout en gardant le même WSDL pour les trois composants.
+  * Configurer l’adresse de cSOAP_2 sur le port 8040, et celle de cSOAP_3 sur le port 8041, tout en gardant le même WSDL pour les trois composants.
   * Lancer la route pour la tester. La console devra afficher *connected*.
 
 Pour utiliser cette route, vous devez reconfigurer votre consommateur pour qu’il lance sa requête sur le port 8042. Exécutez-le et observez le résultat sur les terminaux des deux instances d’ESB démarrées. Que constatez-vous?
+
+??? fail "Erreur possible: java.lang.NoClassDefFoundError"
+
+    Dans le cas d'une erreur de type _java.lang.NoClassDefFoundError_, vérifier que tous les modules nécessaires sont bien téléchargés. Pour cela:
+
+    * Ouvrir _Window -> Show View... -> Modules
+    * Vérifier qu'il n'y a pas de modules nécessaires non téléchargés (leur statut est _Not Installed_ avec une icône de type :warning: ou :no_entry_sign:).
+    * Si vous en trouvez, téléchargez leur jar manuellement sur internet, et ajoutez-le au projet en cliquant sur le symbole du jar, comme indiqué dans la figure suivante:
+    <center><img src="../img/tp3/import_jar.png" width="500" height="300"></center>
 
 ###Déploiement des Routes sur l'ESB
 
@@ -117,7 +125,7 @@ Dans leur état actuel, vos routes doivent être lancées manuellement pour êtr
 Dans cette nouvelle partie, nous allons modifier le corps du message après l’avoir filtré. Pour cela:
 
   * Dans Talend Studio, dupliquer votre route *FiltrageRoute* et la nommer *ModificationRoute*.
-  * Insérer un composant *cSetBody* (permettant de modifier le corps du message reçu) puis un composant *cProcessor* (permettant  de remanier rapidement du code dans la route) entre le *cMessageRouter* et le *cCXF_3*. Le but ici est de modifier le corps des messages reçus, selon leur contenu. Le résultat obtenu ressemblera au suivant:
+  * Insérer un composant *cSetBody* (permettant de modifier le corps du message reçu) puis un composant *cProcessor* (permettant  de remanier rapidement du code dans la route) entre le *cMessageRouter* et le *cSOAP_3*. Le but ici est de modifier le corps des messages reçus, selon leur contenu. Le résultat obtenu ressemblera au suivant:
 
 <center><img src="../img/tp3/modification-route.png"></center>
 
@@ -147,7 +155,7 @@ exchange.getIn().setBody("<tns:HelloWorldServiceOperationRequest "+
 
 Ce code permet de modifier le corps du message entrant en remplaçant le nom par un surnom.
 
-  * Modifier l'adresse du composant *cCXF_1* pour qu'il se lance sur le port 8043.
+  * Modifier l'adresse du composant *cSOAP_1* pour qu'il se lance sur le port 8043.
   * Sauvegarder et exporter votre route dans l’ESB. Lancer le consommateur de nouveau et observez le résultat.
 
 ##Fonctionnalités Supplémentaires de l'ESB
@@ -208,12 +216,12 @@ tesb:start-sam
 2.	Activer la prise en compte de SAM au niveau du service cible
 3.	Configurer le consommateur du service pour prendre en compte le SAM
 
-Pour visualiser le résultat de la surveillance, utiliser un visualiseur de bases de données, tel que [Db Visualizer](https://www.dbvis.com/download/).
+Pour visualiser le résultat de la surveillance, utiliser un visualiseur de bases de données, tel que [DBeaver](https://dbeaver.io/download/).
 
 Pour accéder à la base de données de monitoring, utiliser les paramètres de configuration suivants:
 
--	*Database connection configuration (Default)*: Derby/JavaDB
--	*Driver*: JavaDB/Derby Server
+-	*Database connection configuration*: Derby Server
+-	*Driver*: Derby Server
 -	*Database Server*: localhost
 - *Database Port*: 1527
 - *Database*: DB
