@@ -1,19 +1,19 @@
 ![ESB](img/esb.png)
 
-## Télécharger PDF
+# Télécharger PDF
 [![Download TP3](img/pdf.png)](tp3.pdf)
 
-## Objectifs du TP
+# Objectifs du TP
 1. Routage, médiation et transformation avec Talend ESB.
 2. Gestion du failover et répartition de charges, monitoring et authentification avec Talend ESB.
 
-## Outils et Versions
+# Outils et Versions
 * [Talend Open Studio for ESB](https://sourceforge.net/projects/talendesb/) Version: 8.0.1
 * [DBeaver Community](https://dbeaver.io/download/) Version 22.2.1
 
-## Configuration et Utilisation de l'ESB Talend
+# Configuration et Utilisation de l'ESB Talend
 
-### Lancement de deux instances de l'ESB Talend
+## Lancement de deux instances de l'ESB Talend
 
 Pour les besoins de notre TP, nous allons lancer deux instances de l’ESB Talend. Pour cela, l’environnement nous fournit une manière très simple de le faire:
 
@@ -46,7 +46,7 @@ Vous avez ainsi créé un ESB, que vous avez configuré pour se lancer sur le po
   * Arrêtez votre ESB, en cliquant sur ctrl-d, et relancez-le de nouveau.
   * Lancez dans un autre terminal l’instance de l’ESB se trouvant sous le répertoire d’origine container. Il est inutile de la configurer, elle se lancera par défaut sur le port 8040.
 
-### Publier votre Service dans l'ESB et le Tester
+## Publier votre Service dans l'ESB et le Tester
 Revenir au service web SOAP [HelloWorldService](tp1.md#service-web-soap-helloworld) que vous avez créé dans le TP1, et le publier sur l'ESB. Pour cela, ouvrir l'éditeur *Talend Open Studio* sur le projet *Helloworld*, et suivre les étapes suivantes:
 
   * Faire un clic-droit sur le service *HelloWorldService* et choisir *Exporter le service*. Choisir comme répertoire de destination le dossier *deploy* se trouvant dans le conteneur où vous désirez déployer le service. Un fichier archive de type kar sera alors créé sous ce répertoire, permettant ainsi son déploiement à chaud (pas besoin de redémarrer l’ESB).
@@ -64,10 +64,11 @@ Vérifier que votre service s’exécute bien sur l’ESB principal, en consulta
 
 <center><img src="../img/tp3/service-exec.png"></center>
 
-##Création des Routes
+# Création des Routes
+
 Les routes permettent de définir le comportement que doit prendre le message selon son contenu. Dans notre exemple, nous allons définir deux types de routes: une route permettant de filtrer les messages par contenu, en envoyant les messages contenant le nom “Alice” vers un ESB, et le reste vers l’autre ESB. Une deuxième route permettra de modifier le contenu de certains messages avant de les faire parvenir à leurs destinataires.
 
-###Première Route: Filtrage des Messages
+## Première Route: Filtrage des Messages
 
   * Créer une nouvelle route en cliquant-droit sur *Routes -> Créer une Route*. Nous allons l’appeler FiltrageRoute.
   * Définir votre route de manière à ce qu’elle ressemble à ce qui suit:
@@ -109,7 +110,7 @@ Pour utiliser cette route, vous devez reconfigurer votre consommateur pour qu’
     * Si vous en trouvez, téléchargez leur jar manuellement sur internet, et ajoutez-le au projet en cliquant sur le symbole du jar, comme indiqué dans la figure suivante:
     <center><img src="../img/tp3/import_jar.png" width="500" height="300"></center>
 
-###Déploiement des Routes sur l'ESB
+## Déploiement des Routes sur l'ESB
 
 Dans leur état actuel, vos routes doivent être lancées manuellement pour être prises en considération. Pour les déployer sur votre ESB et les garder ainsi toujours actives, suivre les étapes suivantes:
 
@@ -121,7 +122,7 @@ Dans leur état actuel, vos routes doivent être lancées manuellement pour êtr
 
     Vous ne devez en aucun cas déployer votre route sur deux contenaires, sinon, il y'aura un conflit, car deux services façades seront exposés, ayant la même adresse.
 
-###Deuxième Route : Filtrage et Modification de Messages
+## Deuxième Route : Filtrage et Modification de Messages
 Dans cette nouvelle partie, nous allons modifier le corps du message après l’avoir filtré. Pour cela:
 
   * Dans Talend Studio, dupliquer votre route *FiltrageRoute* et la nommer *ModificationRoute*.
@@ -158,19 +159,19 @@ Ce code permet de modifier le corps du message entrant en remplaçant le nom par
   * Modifier l'adresse du composant *cSOAP_1* pour qu'il se lance sur le port 8043.
   * Sauvegarder et exporter votre route dans l’ESB. Lancer le consommateur de nouveau et observez le résultat.
 
-##Fonctionnalités Supplémentaires de l'ESB
-###Failover et Répartition de Charge
-####Service Locator
+# Fonctionnalités Supplémentaires de l'ESB
+## Failover et Répartition de Charge
+### Service Locator
 Via le Service Locator, l'ESB de Talend fournit des fonctionnalités de gestion de failover automatique et transparente ainsi que de répartition de charge via le lookup et l'enregistrement d'endpoints dynamiques dans Apache Zookeeper. Le Service Locator maintient la disponibilité du service afin de répondre aux demandes et aux Service Level Agreements (SLAs).
 
-####Configuration du Service Locator
+### Configuration du Service Locator
 Pour activer le service locator (SL), il faut:
 
   1. Déployer SL au niveau des conteneurs d’exécution Talend
   2. Activer la prise en compte du SL au niveau du service cible
   3. Configurer le consommateur du service pour prendre en compte le SL
 
-#####1. Déploiement du SL dans le contenaire
+#### 1. Déploiement du SL dans le contenaire
 
 Pour tester sa capacité à gérer le failover et la répartition des charges, le SL doit être déployé dans les différents conteneurs de services où sera déployé votre service. Pour cela, taper dans l’invite de commande de chaque conteneur ESB:
 
@@ -182,7 +183,7 @@ Il est possible de visualiser votre SL dans la liste des services déployés sur
 
 <center><img src="../img/tp3/activ-locator.png"></center>
 
-#####2. Activer SL dans le service
+#### 2. Activer SL dans le service
 
 Pour activer la prise en compte de SL au niveau de notre service utilisateur dans Talend Studio:
 
@@ -192,17 +193,17 @@ Pour activer la prise en compte de SL au niveau de notre service utilisateur dan
 
 Il faut veiller à re-déployer votre service dans les deux conteneurs après l’activation de la fonctionnalité.
 
-#####3. Activer SL dans le consommateur
+#### 3. Activer SL dans le consommateur
 
 Au niveau du consommateur du service, dans les propriétés du composant tESB, cocher la case *Use Service Locator*.
 
-####Test du Service Locator
+### Test du Service Locator
 
-*Pour tester la répartition de charges* : Lancer le consommateur plusieurs fois sur le port 8040 et observez le résultat.
+* Pour tester la répartition de charges* : Lancer le consommateur plusieurs fois sur le port 8040 et observez le résultat.
 
-*Pour tester la gestion du failover* : Arrêter le service sur le contenaire principal (8040). Pour cela, dans l'invite de commande du contenaire principal, taper *list*, puis chercher l'identifiant du service *HelloWorldService*. Taper ensuite : *stop <id_service\>*. Lancer le consommateur sur le endpoint 8040, et observez le résultat.
+* Pour tester la gestion du failover* : Arrêter le service sur le contenaire principal (8040). Pour cela, dans l'invite de commande du contenaire principal, taper *list*, puis chercher l'identifiant du service *HelloWorldService*. Taper ensuite : *stop <id_service\>*. Lancer le consommateur sur le endpoint 8040, et observez le résultat.
 
-###Service Monitoring
+## Service Monitoring
 Le composant SAM permet le logging et la surveillance des appels de service, réalisés avec le framework Apache CXF. Il peut être utilisé pour collecter, par exemple, les statistiques d’usage et le monitoring des fautes.
 
 Pour configurer le Service Activity Monitoring:
@@ -230,8 +231,8 @@ Pour accéder à la base de données de monitoring, utiliser les paramètres de 
 
 Exécuter votre service plusieurs fois, et observer le résultat.
 
-###Authentification
-####Security Token Service (STS) : Implémentation du WS-Trust
+## Authentification
+### Security Token Service (STS) : Implémentation du WS-Trust
 Dans un environnement hétérogène, les services web doivent authentifier les services clients pour contrôler leur accès, grâce à la norme WS-Security, et en implémentant le WS-Trust. *"Trust"* veut dire *"Confiance"*: le but ici est donc d’établir un lien de confiance entre le consommateur et le fournisseur.
 
 Pour cela, un courtier d’authentification est utilisé, fournissant un contrôle d’accès pour les applications. Ce courtier délivre des jetons de sécurité utilisés par les clients pour s’authentifier au service.
@@ -247,7 +248,7 @@ Le STS (*Security Token Service*) est un service web qui fournit un tel courtier
 
 L’utilisation d’un STS simplifie grandement la gestion de la sécurité pour le service et le client, car ils n’ont qu’à faire appel à ce STS, qui va gérer la logique de sécurité, au lieu de la traiter eux-mêmes.
 
-####Configuration des Paramètres de Sécurité
+### Configuration des Paramètres de Sécurité
 Pour associer des paramètres de confidentialité à un service, il faut suivre les étapes suivantes:
 
 1. Déployer STS dans le conteneur d’exécution Talend
@@ -255,7 +256,7 @@ Pour associer des paramètres de confidentialité à un service, il faut suivre 
 3. Activer la prise en compte de STS dans votre service
 4. Configurer votre client pour saisir les paramètres d’authentification.
 
-#####1. Déployer STS dans le conteneur d’exécution
+#### 1. Déployer STS dans le conteneur d’exécution
 Pour installer le service STS dans votre conteneur, démarrer ce dernier, et taper l’instruction suivante dans le terminal:
 ```properties
     feature:install tesb-sts
@@ -265,15 +266,24 @@ Si le service a bien été installé, vous pouvez vérifier qu’il est bien dé
 
 <center><img src="../img/tp3/activ-sts.png"></center>
 
-#####2. Configurer les paramètres de sécurité de votre conteneur
+#### 2. Configurer les paramètres de sécurité de votre conteneur
 Comme c’est le STS qui prend en charge le contrôle d’accès, les paramètres d’authentification (le login/mdp par exemple) ne sont pas configurés au niveau du service fournisseur, mais au niveau du conteneur lui-même.
 
 Pour visualiser l’ensemble des utilisateurs autorisés sur votre conteneur, voir leurs mots de passes et rôles, et éventuellement en ajouter de nouveaux, ouvrir le fichier: *<conteneur\>/etc/users.properties*.
 
 Dans ce fichier, les informations d'authentification sont sous la forme: *user=password,group*. Ajouter une nouvelle ligne avec votre nom comme user et un mot de passe de votre choix, et choisir le groupe *admin*.
 
-#####3. Activer STS dans votre service
+#### 3. Activer STS dans votre service
 Pour activer la prise en compte de STS au niveau de notre service utilisateur dans Talend Studio, dans *ESB Runtime Options*, cocher le type d’authentification désiré (dans notre cas, *Identifiant/Mot de passe*)
 
-#####4. Configurer le client
+#### 4. Configurer le client
 Pour insérer le login/mdp dans votre application cliente, modifier les paramètres d’authentification de votre composant tESBConsumer dans votre job consommateur.
+
+#Homework
+
+!!! note "Projet E2"
+    Pour la séance de TP prochaine, vous devez réaliser l'étape 2 du projet, qui consiste à:
+    
+    * Terminer les diagrammes de votre entreprise commencés la semaine d'avant.
+    * Concevoir et commencer l'implémentation des services nécessaires pour votre PoC. 
+    * Réfléchir à l'usage des ESB, leur rôle et les stratégies qui y seront implémentées.
