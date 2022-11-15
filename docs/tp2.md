@@ -1,7 +1,7 @@
 ![ESB](img/esb.png)
 
 # Télécharger PDF
-[![Download TP3](img/pdf.png)](tp3.pdf)
+[![Download TP3](img/pdf.png)](tp2.pdf)
 
 # Objectifs du TP
 1. Routage, médiation et transformation avec Talend ESB.
