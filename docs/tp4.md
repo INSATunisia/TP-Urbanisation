@@ -1,90 +1,87 @@
-# TP5 - API Management avec Atom et Anypoint
-
-
 ![API](img/api.png)
 
-## Télécharger PDF
-[![Download TP5](img/pdf.png)](tp5.pdf)
+# Télécharger PDF
+[![Download TP4](img/pdf.png)](tp4.pdf)
 
-## Objectifs du TP
-1. Génération d’API avec Atom et le langage RAML
+# Objectifs du TP
+1. Génération d’API avec Anypoint API Designer et le langage RAML
 2. Gestion des APIs avec Anypoint Studio et le API Gateway de Mulesoft
 
-## Outils et Versions
-* [Atom](https://atom.io/) Version: 1.22.1
-* [API Workbench](http://apiworkbench.com/): Plugin Atom. Version: 0.8.47
-* [Anypoint Studio](https://www.mulesoft.com/platform/studio) Version: 6.4.1
-* [MySQL](https://dev.mysql.com/downloads/mysql/) Version 5.7.20 (ou tout autre SGBD de votre choix)
+# Outils et Versions
+* [Anypoint Studio](https://www.mulesoft.com/platform/studio) Version: 7.14.0
+* [MySQL](https://dev.mysql.com/downloads/mysql/) ou tout autre SGBD de votre choix
+* _Dans ce TP, nous aurons besoin du service créé dans le [TP1](tp1.md#service-web-rest--interrogation-dune-base-de-données), ou bien de n'importe quel service REST de votre choix_
 
-## Génération d'API avec RAML
-### RAML
-[RAML](http://docs.raml.org/) (RESTful API Modeling Language) est un langage pour la définition d’API HTTP qui satisfont les exigences de l'architecture REST. La spécification RAML est une application de la spécification YAML, qui fournit des mécanismes pour la définition d’APIs RESTful.
+# API Management avec Anypoint Studio
 
-RAML est développé et supporté par un groupe de leaders en nouvelles  technologie, provenant de plusieurs entreprises éminentes (Mulesoft, Airware, Akana, VMware, CISCO…). Leur but est de construire une spécification ouverte, simple et succincte pour la description d’APIs. Ce groupe de travail contribue à la fois à la spécification RAML, ainsi qu’à un écosystème croissant d’outils autours de ce langage.
+[Anypoint](https://www.mulesoft.com/platform/enterprise-integration) est une plateforme développée par l’entreprise Mulesoft qui offre les outils nécessaires pour la gestion d’APIs. Grâce à Anypoint, Mulesoft est classée par Gartner dans son Magic Quadrant dans la rubrique “Full Life Cycle API Management” de Septembre 2021 parmi les leaders du marché du API Management.
 
-### API Workbench
-Pour écrire un document RAML de manière simple et intuitive, un outil de travail est fourni, sous la forme d’un plugin pour [Atom](https://atom.io/), l'éditeur de texte open source, appelé [API Workbench](http://apiworkbench.com/).
+![Magic Quadrant: Application Services Governance](img/tp4/gartner.jpeg)
 
-Pour l’installer:
+# Génération d'API avec RAML
+## RAML
+[RAML](https://raml.org/) (RESTful API Modeling Language) est un langage pour la définition d’API HTTP qui satisfont les exigences de l'architecture REST. La spécification RAML est une application de la spécification YAML, qui fournit des mécanismes pour la définition d’APIs RESTful.
 
-  * Télécharger et installer Atom: https://atom.io/
-  * Dans le menu Préférences, choisir l’option *Packages*, et taper dans la barre de recherche:  *api-workbench*.
-  * Une fois le package installé, on devrait trouver dans le menu Packages, un nouvel élément *API Workbench*.
+RAML est développé et supporté par un groupe de leaders en nouvelles technologies, provenant de plusieurs entreprises éminentes (Mulesoft, Airware, Akana, VMware, CISCO…). Leur but est de construire une spécification ouverte, simple et succincte pour la description d’APIs. Ce groupe de travail contribue à la fois à la spécification RAML, ainsi qu’à un écosystème croissant d’outils autours de ce langage.
 
-### Création d’un document RAML
+## Génération de l'API RAML avec AnyPoint API Designer
+Pour écrire un document RAML de manière simple et intuitive, ouvrir Anypoint Studio, et créer un nouveau projet de type **"API Specification Project"**, intitulé *Pet Shop* de type *RAML 1.0*. L'interface suivante devra s'afficher:
+
+![New RAML Project](img/tp4/new-raml.png)
+
+## Création d’un document RAML
 Dans ce qui suit, nous vous indiquons les étapes nécessaires pour créer un simple fichier RAML décrivant une API REST répondant aux recommandations décrites dans le cours.
 
-####  Création d’une API RAML
-Pour créer un nouveau projet RAML, aller vers *Packages -> API Workbench -> Create RAML Project* . Indiquer :
+###  Création d’une API RAML
+Remplir le fichier pet-shop.raml créé pour qu'il ressemble à ce qui suit:
 
-  * Le répertoire de travail
-  * Le titre de l’API : Par exemple Pet Shop
-  * La version : v1
-  * L’URI de base l’API : /petshop
-  * Cocher uniquement Use RAML 1.0
+``` yaml
+  #%RAML 1.0
+  title: Pet Shop
+  version: v1
+  baseUri: /pets
 
-Le projet obtenu aura l’allure suivante:
+  /pets:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              properties:
+                name: string
+                kind: string
+                price: number
+    post:
+      body:
+        application/json:
+          properties:
+              name: string
+              kind: string
+              price: number
+    /{id}:
+      delete:
+        responses:
+          204:
+      put:
+        body:
+          application/json:
+            properties:
+              name: string
+              kind: string
+              price: number
+        
+        
+```
+Dans cette description, nous définissons le comportement principal de l'API, à l'appel des quatre méthodes les plus fréquentes: un *GET* ou un *POST* sur la ressource principale, et un *DELETE* ou un *PUT* sur un objet particulier représenté par son *id*.
 
-![Workspace](img/tp5/workspace.png)
 
-#### Ajout de Ressources et Méthodes
 
-  * Sous l’onglet Palette de la rubrique Détails, cliquer sur *Add new ressource* pour ajouter une nouvelle ressource.
-  * Appeler la ressource */pets*
-  * Sélectionner les méthodes *get* et *post*
+### Définir des types
+Pour éviter les redondances constatées dans notre définition, nous créons le type *Pet*. Pour cela:
 
-La ressource est désormais créée avec deux méthodes vides.
+  * Dans une nouvelle ligne au dessus de */pets*, taper les lignes suivantes:
 
-#### Remplir les corps et réponses des méthodes
-
-  * Mettre le focus sur la méthode *get:*
-  * Dans la Palette, cliquer sur *Create new response*
-  * Garder le code 200 pour la réponse et cliquer sur OK
-  * Une fois le code de la réponse généré, mettre le focus sur *200:*
-  * Cliquer sur *Create new Response Body*, puis dans la fenêtre qui apparait cliquer sur OK, pour générer une réponse de type par défaut *application/json*
-  * Pour la méthode post, générer directement un corps, en cliquant sur *Create new body*.
-
-Le résultat apparaît comme suit:
-
-![Nouvelle API](img/tp5/new-api.png)
-
-#### Ajouter des sous-ressources
-
-Pour définir le reste des méthodes (put et delete), destinées à agir sur un élément unique de la ressource pets, et les associer à une sous-ressource:
-
-  * Mettre le focus sur */pets*
-  * Cliquer sur *Add new resource*
-  * Taper */{id}* comme ressource URL, et sélectionner les méthodes put et delete.
-  * Ajouter un body à put de type application/json
-  * Ajouter une réponse à delete de type 204
-
-#### Définir des types
-Pour définir le contenu des messages JSON manipulés, définir un type comme suit:
-
-  * Dans une nouvelle ligne au dessus de */pets*, taper *ty*, puis cliquer sur entrée
-  * Appeler le type *Pet*, puis définir les propriétés name, kind et price, comme suit:
-
-```properties
+```yaml
 types:
   Pet:
     properties:
@@ -96,26 +93,43 @@ types:
   * Définir *Pet* comme type pour le corps de la méthode *post*, en écrivant: *type: Pet* au dessous de *application/json* de la méthode post
   * Ajouter de même *Pet* comme type pour la méthode put, et *Pet[]* pour la méthode get.
 
-#### Extraction d’un type de ressources
+### Extraction d’un type de ressources
 Pour générer un type de ressources à partir d’une ressource existante:
 
-  * Mettre le focus sur la ressource */pets*
-  * Cliquer sur *Extract Resource Type* (si vous ne la trouvez pas, appuyer sur *entrée*)
-  * Taper *Collection* comme nom de type de ressource et déplacer les méthodes get et post de la fenêtre de gauche vers celle de droite
-  * Un nouveau *resourceType*, appelé *Collection*, est créé, contenant les méthodes get et post comme elles ont été définies sous la ressource */pets*. De plus, */pets* est désormais de type *Collection*.
-  * Répéter la procédure pour la ressource /{id}. On appellera le type *Member*.
+  * Ajouter le code suivant au dessus du *title*:
 
-Le résultat devra ressembler à ce qui suit:
+```yaml
+resourceTypes:
+  Collection:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              type: Pet[]
+    post:
+      body:
+        application/json:
+          type: Pet
+  Member:
+    delete:
+      responses:
+        204:
+    put:
+      body:
+        application/json:
+          type: Pet
+```
 
-<center><img src="../img/tp5/resource-type.png" width="50%"></center>
+  * Supprimer le contenu de /pets et de /{id} pour le remplacer par les nouveaux resourceTypes défini en utilisant: **type: Collection** et **type: Member**.
 
-#### Ajout de paramètres au type de ressource
+### Ajout de paramètres au type de ressource
 Pour rendre le type de ressource créé générique, il serait plus intéressant de paramétrer le type de réponse. Pour cela:
 
   * Remplacer le terme *Pet* dans *Collection* et *Member* par ``` <<item>> ```.
   * Corriger les erreurs qui s’affichent dans les ressources *Collection* et *Member* respectivement par ```{ Collection: {item : Pet} }``` et ```{ Member: {item : Pet} }```
 
-#### Ajout d’un exemple
+### Ajout d’un exemple
 Pour ajouter un exemple d’animal, modifier le type *Pet* pour qu’il soit comme suit:
 
 ```properties
@@ -131,19 +145,12 @@ types:
       price: 1000
 ```
 
-#### Définir des paramètres pour les méthodes
-Nous nous proposons d’ajouter une autre méthode de type *get*, qui définit plusieurs paramètres.
+### Définir des paramètres pour les méthodes
+Nous nous proposons d’ajouter une autre méthode de type *get*, qui définit plusieurs paramètres. Pour cela, 
 
   * Sous (et au même niveau que) *type* de */pets*, taper: *get:*
-  * Mettre le focus sur le *get* nouvellement créé
-  * Cliquer sur *Create new query parameter*
-  * Créer trois paramètres:
-    - *priceLessThan* de type *number*
-    - *priceMoreThan* de type *number*
-    - *petKind*, de type *enum;[bird, dog]*
-
-Cela devra ressembler à ce qui suit:
-```properties
+  * Ajouter le code suivant: 
+```yaml
 get:
     queryParameters:
       priceLessThan: number
@@ -154,359 +161,210 @@ get:
           - dog
 ```
 
-Il est possible d’extraire certains des paramètres comme *Trait*, c’est à dire un critère de filtrage. Pour cela:
+Il est possible d’extraire certains des paramètres comme *Trait*, c’est à dire un critère de filtrage. Pour cela, ajouter le code suivant au dessus de *resourceTypes*:
 
-  * Mettre le focus sur le *get*
-  * Cliquer sur *Extract trait*
-  * Nommer le trait *FiltrableByPrice*, et déplacer les méthodes *priceLessThan* et *priceMoreThan* vers la droite.
-
-Vous remarquerez que les deux paramètres choisis ont été enlevés de la méthode *get*, et remplacés par *is: [FilterableByPrice]*.
-
-Voici donc le résultat final du fichier RAML:
-```properties
-#%RAML 1.0
+```yaml
 traits:
   FiltrableByPrice:
     queryParameters:
       priceLessThan: number
       priceMoreThan: number
-resourceTypes:
-  Collection:
-    get:
-      responses:
-        200:
-          body:
-            application/json:
-              type: <<item>>
-    post:
-      body:
-        application/json:
-          type: <<item>>
-  Member:
-    delete:
-      responses:
-        204:
-    put:
-      body:
-        application/json:
-          type: <<item>>
-title: Pet Shop
-version: v1
-baseUri: /petshop
-types:
-  Pet:
-    properties:
-      name: string
-      kind: string
-      price: number
-    example:
-      name: Snoopy
-      kind: Dog
-      price: 1000
-/pets:
-  type: { Collection: {item : Pet} }
-  get:
-    queryParameters:
-      petKind:
-        enum:
-          - bird
-          - dog
-    is: [FiltrableByPrice]
-  /{id}:
-    type: { Member: {item : Pet} }
 ```
 
-#### Extraction de la librairie
-Pour extraire les types définis et les représenter dans une entité réutilisable:
 
-  * Mettre le focus en dehors de toutes les structures, par exemple sur *title*
-  * Cliquer sur *Extract Library*
-  * Appeler la librarie *PetTypes*
-  * Déplacer *Pet*, *Collection* et *Member* vers le panel de droite
-  * Cliquer sur *Extract*
+### Première Application
+Dans Anypoint Studio, créer un nouveau Mule Project: 
 
-Un nouveau fichier contenant les trois types sélectionnés a été créé, puis inclus comme référence dans notre fichier principal.
+  * Appeler le projet *MaPremiereApp*
+  * Choisir Mule Server comme *Runtime Environment*.
+  * Cliquer sur *Finish*.
 
-### API Management avec Anypoint Studio
-#### Anypoint Platform
-
-[Anypoint](https://www.mulesoft.com/platform/enterprise-integration) est une plateforme développée par l’entreprise Mulesoft qui offre les outils nécessaires pour la gestion d’APIs. Anypoint est classée par Gartner dans son Magic Quadrant dans la rubrique “Application Services Governance” d’Avril 2015 parmi les leaders du marché du API Management.
-
-![Magic Quadrant: Application Services Governance](img/tp5/gartner.png)
-
-#### Première Application
-Une fois Anypoint Studio téléchargé et installé, créer un nouveau projet, qu’on appellera *PremiereApplication*, et choisir Mule Server comme *Runtime Environment*.
-La fenêtre obtenue a l’allure suivante:
-
-![Workspace Mulesoft Studio](img/tp5/workspace-mule.png)
-
-!!!warning "Attention"
-    Anypoint Studio version 6.4.1 ne fonctionne qu'avec au plus JDK 1.8.0_151!
-
-Nous allons commencer par créer une simple application qui affiche un message dans un navigateur.
+Nous allons commencer par créer une simple application qui affiche un message.
 
   * À partir de la palette, glisser-déplacer les éléments graphiques suivants dans le canevas:
-    - **HTTP**: permet de se connecter aux ressources web via HTTP ou HTTPS.
+    - **HTTP Listener**: permet de se connecter aux ressources web via HTTP ou HTTPS.
     - **Set Payload**: modifie le message affiché (payload) en "Hello World!".
 
 Votre flux aura l’allure suivante:
 
-<center><img src="../img/tp5/hello-app.png" width="30%"></center>
+<center><img src="../img/tp4/flow1.png" width="20%"></center>
 
-Configurer votre composant HTTP :
+Configurer votre composant Listener :
 
   * Ajouter une nouvelle *Connector Configuration*
   * Garder les options par défaut. Votre hôte se lancera à l’URL 0.0.0.0:8081
+  * Définir le path comme **/hello** (ceci représente le chemin relatif à partir du chemin de base défini dans la configuration du listener).
 
 Configurer le composant Set Payload:
 
-  * Remplacer la valeur de l’élément *Value* par *Hello World!*
+  * Remplacer la valeur de l’élément *Value* par *Hello World!!*
   * Lancer votre application : Run -> Run As -> Mule Application. La console devrait afficher un message comme suit:
 
-![Console Helloworld](img/tp5/hello-console.png)
+![Console Helloworld](img/tp4/flow-console.png)
 
-Dans un navigateur, taper l'adresse: 0.0.0.0:8081. Le message suivant devra s'afficher:
+Dans un navigateur, taper l'adresse: _0.0.0.0:8081/hello_. Un fichier contenant le message _Hello World!_ devra être disponible.
 
-<center><img src="../img/tp5/hello-nav.png" width="30%"></center>
-
-#### Gestion des APIs avec APIKit
+### Gestion des APIs avec APIKit
 APIKit est un toolkit open source spécialement créé pour faciliter l’implémentation d’APIs REST, en renforçant les bonnes pratiques de création d’APIs.
 
-Nous allons pour cela exposer l'API REST que nous avons créé dans le [TP précédent](tp4.md), grâce aux microservices Spring.
+Nous allons pour cela exposer l'API REST que nous avons créé avec Talend dans la deuxième partie du [TP1](tp1.md#service-web-rest--interrogation-dune-base-de-données).
 
-##### *Création d'un fichier RAML pour le microservice*
-Pour représenter le microservice "ProductService", créer le fichier *api.raml* suivant avec Atom:
+#### *Création d'un fichier RAML pour le service*
+Pour représenter le service "Get Users", créer le fichier *usersapi.raml* suivant dans API Designer:
 
-```properties
+```yaml
 #%RAML 1.0
-title: Micro-API
+title: My-API
 version: v1
-baseUri: http://products.tn
-/products:
+baseUri: http://localhost:8081
+/users:
   get:
-    description: List of all the products
+    description: List of all the users
     responses:
       200:
         body:
-          application/json:
-            example: !include products-example.json
+          application/xml:
+            example: !include users-example.xml
 
 ```
 
-Rajouter également (dans le même répertoire) un fichier *products-example.json*, où vous allez trouver un exemple de produits, tel qu'ils sont représentés par votre service sur ```http://localhost:9999/product-service/products```. Cela devrait ressembler à ce qui suit:
+Rajouter également (dans le même répertoire) un fichier *users-example.xml*, où vous allez trouver un exemple de users, tel qu'ils sont représentés par votre service sur ```http://localhost:8088/users```. Cela devrait ressembler à ce qui suit:
 
-```JSON
-{
-  "_embedded": {
-    "products": [
-      {
-        "name": "Sample Product",
-        "_links": {
-          "self": {
-            "href": "http://localhost:9999/product-service/products/1"
-          },
-          "product": {
-            "href": "http://localhost:9999/product-service/products/1"
-          }
-        }
-      }
-    ]
-  },
-  "_links": {
-    "self": {
-      "href": "http://localhost:9999/product-service/products{?page,size,sort}",
-      "templated": true
-    },
-    "profile": {
-      "href": "http://localhost:9999/product-service/profile/products"
-    },
-    "search": {
-      "href": "http://localhost:9999/product-service/products/search"
-    }
-  },
-  "page": {
-    "size": 20,
-    "totalElements": 3,
-    "totalPages": 1,
-    "number": 0
-  }
-}
-
-
+```XML
+  <users>
+    <user id="11">
+      <firstname>Flen</firstname>
+      <lastname>Fouleni</lastname>
+    </user>
+    <user id="22">
+      <firstname>Flena</firstname>
+      <lastname>Flenia</lastname>
+    </user>
+  </users>
 ```
 
 
 
 
-##### *Nouveau Projet de API Management*
-Créer un nouveau projet qu’on appellera *API_Project*:
+#### *Nouveau Projet de API Management*
+Créer un nouveau Mule Project qu’on appellera *API_Project*:
 
   * Choisir comme environnement d’exécution Mule Server.
-  * Cocher la case *Add APIKit components* et entrer votre fichier api.raml.
+  * Cliquer sur l'onglet **Import RAML from local file** et choisir le fichier _usersapi.raml_ que vous venez de créer.
 
-Un nouveau projet sera créé avec les fichiers *api.raml* et *products-example.json* ajouté sous le répertoire *src/main/api*, ainsi que des flux de gestion des différentes méthodes ajoutées par défaut dans le canevas. Vous retrouverez notamment:
+Un nouveau projet sera créé avec les fichiers *usersapi.raml* et *users-example.xml* ajoutés sous le répertoire *src/main/resources/api*, ainsi que des flux de gestion des différentes méthodes ajoutées par défaut dans le canevas. Vous retrouverez notamment:
 
 |Flux|Description|Figure|
 |---------|------------------------------------------------|-------------|
-| api-main | Flux principal, définissant un point d’accès HTTP, un routeur APIKit et une référence à une stratégie d'exception   | ![api-main](img/tp5/api-main.png)|
-| action:/ressource:api-config | Un Backend flow pour chaque paire de ressource/action dans le fichier RAML. Par exemple, get:/products:api-config représente l’action get de la ressource products   | ![get-products](img/tp5/get-products.png)|
-| Exception Strategy Mapping | Flux fournis par Studio pour configurer les messages d’erreur dans un format HTTP-status-code-friendly | ![errors](img/tp5/error-mapping.png) |
+| usersapi-main | Flux principal, définissant un point d’accès HTTP, un routeur APIKit et une référence à une stratégie d'exception   | ![api-main](img/tp4/api-main.png)|
+| action:/ressource:api-config | Un Backend flow pour chaque paire de ressource/action dans le fichier RAML. Par exemple, get:/products:api-config représente l’action get de la ressource products   | ![get-users](img/tp4/get-users.png)|
 
-##### *Configuration du flux principal*
+#### *Configuration du flux principal*
 
-  * Dans les propriétés du composant HTTP, définir le Path par: /prod-services/*.
-  * Dans le *Connector Configuration*, cliquer sur l'icône ![config](img/tp5/config.png), puis cliquer sur *OK* pour valider le host (0.0.0.0) et le port (8081)
+  * Dans les propriétés du composant Listener, définir le Path comme: _/*_.
+  * Dans le *Connector Configuration*, cliquer sur l'icône ![config](img/tp4/config.png), puis cliquer sur *OK* pour valider le host (0.0.0.0) et le port (8081)
 
 !!!note "Remarque"
-    Vous pouvez changer ici le port défini par défaut, pour éviter les conflits avec vos microservices.
+    Vous pouvez changer ici le port défini par défaut, pour éviter les conflits potentiels avec d'autres services.
 
-Lancer le projet comme *Mule Project*. Une *APIKit Console* s'affiche comme suit:
+Lancer le projet comme *Mule Application*. 
 
-![ApiKit Console](img/tp5/api-console.png)
+Pour commencer, afficher la documentation de l'API dans une *APIKit Console*. Pour cela:
+  
+  * Aller à *Window -> Show View -> Other...*
+  * Choisir *APIKit View -> APIKit Consoles*
 
-Pour tester votre API, cliquer par exemple sur le bouton *GET* devant la ressource */products*. la Console affichera alors la réponse (le produit *Sample Product*), qui a été définie comme exemple dans le fichier RAML de départ.
+Une vue va s'afficher comme suit:
 
-![Get Products](img/tp5/products-response.png)
+<center><img src="../img/tp4/api-console.png" width="40%"></center>
+
+Cliquer sur *Open Console*. Une fenêtre va s'afficher sur votre navigateur, comme suit:
+
+
+<center><img src="../img/tp4/apikit-console.png" width="40%"></center>
+
+Pour consulter votre API, cliquer par exemple sur le bouton *GET* de la ressource */users*. La console affichera alors la réponse, qui a été définie comme exemple dans le fichier RAML de départ.
+
+<center><img src="../img/tp4/users-response.png" width="60%"></center>
 
 Pour visualiser le résultat sur le navigateur, taper le chemin de la requête comme suit:
 
 
 ```URL
-http://localhost:8081/prod-services/products
+http://localhost:8081/users
 ```
 
 Vous obtiendrez le résultat suivant:
 
-<center><img src="../img/tp5/get-prod-response.png" width="75%"></center>
+<center><img src="../img/tp4/get-users-api.png" width="60%"></center>
 
-#### Mapping de l'API avec votre microservice ProductService
-Pour relier votre API créée avec le microservice Proxy (créé dans le TP précédent), et qui est déployé à l'adresse suivante:
+### Mapping de l'API avec le service
+Pour relier votre API créée avec le service du TP1 (n'oubliez pas de le lancer :wink:), qui est déployé à l'adresse suivante:
 
 ```URL
-http://localhost:9999/product-service/products
+http://localhost:8088/users
 ```
 
-  * Supprimer le *Set Payload* du flow : _get:/products:api-config_
-  * Ajouter un connecteur HTTP dans la partie *Source*
+  * Supprimer le *Transform Message* du flow : _get:/users:usersapi-config_
+  * Ajouter un connecteur HTTP Listener dans la partie *Source*
   * Le configurer comme suit:
-    - Path: /prod-services
-    - Cliquer sur ![config](img/tp5/config.png) puis sur OK pour valider le hôte et port.
-  * Ajouter un connecteur HTTP dans la partie *Process*
+    - Path: _/all-users_
+    - Cliquer sur ![config](img/tp4/config.png) puis sur OK pour valider le hôte et port.
+  * Ajouter un connecteur **HTTP Request** dans la partie *Process*
   * Le configurer comme suit:
-    - Devant *Connector Configuration*, cliquer sur ![add](img/tp5/add.png) pour ajouter une nouvelle configuration.
-    - Cela représente les informations du service auquel on va accéder. Définir le Host par *localhost*, le port par *9999*, et le base path par */product-service*
+    - Devant *Configuration*, cliquer sur ![add](img/tp4/add.png) pour ajouter une nouvelle configuration.
+    - Cela représente les informations du service auquel on va accéder. Définir le Host par *localhost*, le port par *8088*, et le base path par */*
     - Cliquer sur OK pour valider
-  * Dans la partie *URL Settings*, définir :
-    - Path: /products
+  * Dans la partie *Request*, définir :
     - Method: Get
+    - Path: /users?from=1&to=4
+    - URL (_Laisser vide_)
   * Sauvegarder, et lancer le service.
 
 Tester le service sur le navigateur avec l'URL:
-``` http://localhost:8081/prod-services ```. Vous obtiendrez la liste complète des produits, tels que retournés par le service *ProductService* initial, comme suit:
+``` http://localhost:8081/all-users ```. Vous obtiendrez la liste complète des utilisateurs de votre base, tels que retournés par le service initial, comme suit (le contenu exact dépend bien entendu de votre base de données):
 
-```JSON
-{
-  "_embedded": {
-    "products": [
-      {
-        "name": "Pencil",
-        "_links": {
-          "self": {
-            "href": "http://localhost:9999/product-service/products/1"
-          },
-          "product": {
-            "href": "http://localhost:9999/product-service/products/1"
-          }
-        }
-      },
-      {
-        "name": "Book",
-        "_links": {
-          "self": {
-            "href": "http://localhost:9999/product-service/products/2"
-          },
-          "product": {
-            "href": "http://localhost:9999/product-service/products/2"
-          }
-        }
-      },
-      {
-        "name": "Eraser",
-        "_links": {
-          "self": {
-            "href": "http://localhost:9999/product-service/products/3"
-          },
-          "product": {
-            "href": "http://localhost:9999/product-service/products/3"
-          }
-        }
-      }
-    ]
-  },
-  "_links": {
-    "self": {
-      "href": "http://localhost:9999/product-service/products{?page,size,sort}",
-      "templated": true
-    },
-    "profile": {
-      "href": "http://localhost:9999/product-service/profile/products"
-    },
-    "search": {
-      "href": "http://localhost:9999/product-service/products/search"
-    }
-  },
-  "page": {
-    "size": 20,
-    "totalElements": 3,
-    "totalPages": 1,
-    "number": 0
-  }
-}
+<center><img src="../img/tp4/get-users-all.png" width="60%"></center>
 
 
-```
+### Transformation du résultat du service 
+Nous allons maintenant retourner un résultat différent du service initial. Par exemple, nous allons afficher uniquement les prénoms des users, mais cette fois-ci dans un document JSON. Pour cela, utiliser un objet *Transform Message*.
 
-#### Transformation du résultat du microservice ProductService
-Si vous désirez retourner un résultat différent du Microservice initial, en ne laissant par exemple que les noms des produits, sans tous les autres éléments et liens supplémentaires, utiliser un objet *Transform Message*
-
-  * Copier le flow get:/products pour créer un autre flow identique
-  * Modifier le Path du connecteur HTTP source, pour  */prod-services/names*
+  * Dans le code XML de votre **usersapi**, copier le flow get:/users pour créer un autre flow identique (modifier le nom du flow pour qu'il devienne, par exemple, _"getnames:\users:usersapi-config"_)
+  * Modifier le Path du connecteur HTTP source, pour  */all-users/names*
   * Rajouter un objet *Transform Message* juste après le connecteur HTTP de droite (celui de la partie Process). Le flow devra ressembler à ce qui suit:
 
-<center><img src="../img/tp5/flow-transform.png" width="50%"></center>
+<center><img src="../img/tp4/flow-transform.png" width="40%"></center>
 
   * Configurer l'objet *Transform Message*:
     - L'interface suivante représente les mappings à faire entre les entrées du service et sa sortie.
 
-    <center><img src="../img/tp5/transform-mapping.png" width="100%"></center>
+    <center><img src="../img/tp4/transform-mapping.png" width="100%"></center>
 
-    - Cliquer sur *Define Metadata* du payload en entrée (à gauche) gauche)
+    - Cliquer sur *Define Metadata* du payload en entrée (à gauche) 
     - Cliquer sur *Add*
-    - Entrer le nom du type en entrée, par exemple *products*
-    - Indiquer comme type *JSON*
-    - Indiquer dans la liste déroulante suivante que le fichier donné est un *Example*, puis choisir le fichier *products-example.json* que vous aviez créé.
+    - Entrer le nom du type en entrée, par exemple *users*
+    - Indiquer comme type *XML*
+    - Indiquer dans la liste déroulante suivante que le fichier donné est un *Example*, puis choisir le fichier *users-example.xml* que vous aviez créé.
     - Cliquer sur Select. Le schéma du fichier donné est chargé dans la partie *Input* de *Transform Message*.
     - Pour représenter le format de sortie désiré, créer un fichier appelé *names.json* à l'endroit de votre préférence sur votre ordinateur.
     - Saisir le contenu suivant dans *names.json*:
     ```json
-      {"name":"prod"}
+      { 
+        "users": [
+          {"name": "Name 1"},
+          {"name": "Name 2"}
+        ]
+      } 
     ```
     - Cliquer sur *Define Metadata* de sortie (à droite).
     - Ajouter un nouveau type que vous appellerez *names*
-    - Définir comme type *Json* et charger le fichier *names.json* que vous venez de créer.
+    - Définir comme type *JSON* et charger le fichier *names.json* que vous venez de créer.
     - Valider.
-    - Maintenant que les deux schémas (entrée et sortie) sont définis, créer les associations de votre choix. Dans notre cas, nous allons associer le champ *_embedded.products.name* en entrée au champ *name* en sortie, comme suit:
-    ![Mapping](img/tp5/names-mapping.png)
+    - Maintenant que les deux schémas (entrée et sortie) sont définis, créer les associations de votre choix. Dans notre cas, nous allons associer le champ *firstname* en entrée au champ *name* en sortie, comme suit:
+    ![Mapping](img/tp4/names-mapping.png)
     - Sauvegarder, et lancer le service.
 
-Pour tester le service, lancer dans un navigateur: ```http://localhost:8081/prod-services/names```. Vous obtiendrez le résultat suivant:
+Pour tester le service, lancer dans un navigateur: ```http://localhost:8081/all-users/names```. Vous obtiendrez le résultat suivant:
 
-```JSON
-{
-  "name": [
-    "Pencil",
-    "Book",
-    "Eraser"
-  ]
-}
-```
+<center><img src="../img/tp4/names-result.png" width="70%"></center>
