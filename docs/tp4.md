@@ -14,9 +14,7 @@
 
 # API Management avec Anypoint Studio
 
-[Anypoint](https://www.mulesoft.com/platform/enterprise-integration) est une plateforme développée par l’entreprise Mulesoft qui offre les outils nécessaires pour la gestion d’APIs. Grâce à Anypoint, Mulesoft est classée par Gartner dans son Magic Quadrant dans la rubrique “Full Life Cycle API Management” de Septembre 2021 parmi les leaders du marché du API Management.
 
-![Magic Quadrant: Application Services Governance](img/tp4/gartner.jpeg)
 
 # Génération d'API avec RAML
 ## RAML

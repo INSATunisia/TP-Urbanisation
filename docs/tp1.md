@@ -7,382 +7,207 @@
 [![Download TP1](img/pdf.png)](tp1.pdf)
 
 # Objectifs du TP
-Création et consommation de web services SOAP et REST en utilisant l'outil Talend.
+Création et consommation de web services SOAP en utilisant l'outil Anypoint Studio.
 
 # Outils et Versions
-* [Talend Open Studio for ESB](https://sourceforge.net/projects/talendesb/) Version: 8.0.1
+* [Anypoint Studio 7 and Mule ESB 4](https://www.mulesoft.com/lp/dl/anypoint-mule-studio)
 * [MySQL](https://dev.mysql.com/downloads/) Version _latest_
-* [SOAPUI](https://www.soapui.org/downloads/soapui.html) Version 5.7.0
+* [SOAPUI](https://www.soapui.org/downloads/soapui.html) (Open Source) Version 5.7.0
+* [VSCode](https://code.visualstudio.com/Download) Version _latest_
 
-# Présentation de Talend
-## Talend ESB
-Talend ESB est une solution légère, robuste et modulaire pour la création de services
-web sécurisés ainsi que pour l’intégration d’applications nouvelles ou existantes.
-Talend participe au développement des composants ESB à travers la communauté
-Apache. Il collabore avec un grand nombre de développeurs de la communauté Apache
-et a fait plusieurs contributions aux projets Apache.
-Talend fournit:
+# Présentation des outils 
+## Anypoint Platform
+[Anypoint](https://www.mulesoft.com/platform/enterprise-integration) est une plateforme développée par l’entreprise Mulesoft qui offre les outils nécessaires pour la gestion d’APIs et l'intégration de services. Grâce à Anypoint, Mulesoft est classée par Gartner dans son Magic Quadrant dans la rubrique “Enterprise Integration Platform as a Service” de Décembre 2022 parmi les leaders du marché.
 
-* Un courtier de messages à haute performance.
-* Des options de déploiement flexibles
-* Des outils de développement pour Eclipse
-* Une interface utilisateur pour l’intégration et la médiation d’applications
-* Support pour les services web SOAP et REST
-* La médiation et le routage
-* Support pour le failover, le monitoring et la sécurité
+![Magic Quadrant: Enterprise Integration Platform as a Service](img/tp1/gartner.png)
 
 
-L’environnement d’exécution standard de Talend ESB est un conteneur OSGi.
-L’implémentation OSGi fournie avec Talend ESB est Apache Karaf, avec Eclipse Equinox
-comme environnement d’exécution OSGi. Elle fournit un conteneur léger dans lequel les
-différents composants et applications peuvent être déployées.
+## Mule ESB
+Mule, le runtime engine d'Anypoint Platform, est un ESB (enterprise service bus) léger basé sur Java ainsi qu'une plateforme d'intégration qui permet aux développeurs de connecter des applications rapidement et facilement afin qu'elles puissent échanger des données. Cela facilite l'intégration des systèmes existants, quelles que soient les technologies utilisées par les applications, notamment JMS, Web Services, JDBC, HTTP, etc. Cet ESB, déployable n'importe où, qui intègre et orchestre les événements en temps réel ou par lots, dispose d'une connectivité universelle.
 
-## Talend Open Studio for ESB
-Talend Open Studio for ESB (TOS-ESB) fournit une interface graphique de
-développement pour implémenter, compiler, tester et publier des services Web Java, des
-applications REST, des services de données et des routes de messages.
-Le déploiement d’applications avec TOS-ESB utilise principalement les trois blocs
-représentés dans cette figure:
+Mule ESB propose les services suivants:
+
+  * Création et hébergement de services
+  * Médiation de services
+  * Routage des messages
+  * Transformation des données
+
+## Anypoint Studio
+Anypoint Studio fournit une interface graphique de
+développement pour implémenter, compiler, tester et publier des services Web, des services de données et des routes de messages.
+
+<!-- # Création d'un service web SOAP avec Spring Boot et VSCode
+
+Nous allons commencer par créer un premier service web simple, pour tester son déploiement et intégration sur l'ESB plus tard. Nous utilisons pour cela Spring Boot et VSCode (mais on aurait pu utiliser n'importe quel autre langage, framework ou IDE).
+
+Ce web service permet de créer un service web SOAP avec Spring Boot, qui prend en entrée un pays (_Spain_, _Poland_ ou _United Kingdom_), et nous donne sa population, sa capitale et sa monnaie. Vous trouverez tous les détails et explications du code dans le tutoriel suivant: `https://spring.io/guides/gs/producing-web-service`.
+
+* Commencer par cloner le repository git suivant : `https://github.com/spring-guides/gs-producing-web-service`
+* Sur votre répertoire local, ouvrir le projet avec VSCode (ou tout autre IDE de votre choix).
+* Je vous donne ici les étapes à suivre pour lancer le service avec Maven ([Maven 3.5+](https://maven.apache.org/download.cgi) est requis). Si vous préférez gradle, vous trouverez les détails d'exécution dans le tutoriel d'origine. 
+  * Positionnez-vous sous le répertoire `complete`
+  * Lancer votre service :
+    * Si vous êtes sur Linux/Mac, exécuter la commande : `./mvnw spring-boot:run`
+    * Si vous êtes sur Windows, exécuter : `mvnw.cmd spring-boot:run`
+
+Si le service est correctement lancé, vous trouverez un affichage similaire au suivant:
+
 
 <center>
-![Talend](img/tp1/talend.png)
+<img width="700pt" src="../img/tp1/serviceok.png">
 </center>
 
-* Le bloc bleu représente l’API Talend Studio, où il est possible d’intégrer des
-données, des services ou des applications
-* Les blocs rouges représentent un ou plusieurs environnements d’exécution Talend
-déployés dans votre système d’information. Il vous permet de déployer et
-d’exécuter les Jobs, les routes et les services créés dans Talend Studio. Il est
-possible d’avoir plusieurs environnements d’exécution, entre lesquels vous pouvez
-basculer grâce à Talend Service Locator.
-* Le bloc orange est une base de données de monitoring, permettant de stocker les
-informations d’exécution des processus et de l’activité des services.
+Pour tester votre service, il est recommandé d'utiliser une application comme SOAPUI. Pour cela: 
 
-L’interface utilisateur de TOS-ESB se présente comme suit:
-
-![TOS](img/tp1/tos.png)
-
-
-|Composant|Fonctionnalité|
-|---------|-------------------------------------------------------------|
-| ![1](img/tp1/1.png) | Le traditionnel *Repository* contenant vos Jobs, services, fichiers, routes…   |
-| ![2](img/tp1/2.png) | La fenêtre principale, représentant graphiquement la composition de vos jobs et routes  |
-| ![3](img/tp1/3.png) | La fenêtre contenant les propriétés, la console d’exécution…  |
-| ![4](img/tp1/4.png) | La palette des composants à utiliser  |
-| ![5](img/tp1/5.png) | Les onglets pour le choix de la perspective à utiliser |
-
-
-
-# Service Web SOAP : Helloworld
-
-Commençons par installer Talend ESB en dézippant simplement le fichier téléchargé. Aller ensuite au répertoire Studio, et lancer l'exécutable associé à votre système d'exploitation. 
-
-??? fail "Erreur possible pour les utilisateurs MAC"
-
-    Pour ceux qui disposent d'un MAC, si l'erreur suivante apparaît: _The TOS_ESB-macosx-cocoa executable launcher was unable to locate its companion shared library._, réaliser les actions suivantes (ceci se fera une seule fois):
-
-    * Ouvrir un terminal sous le répertoire Studio
-    * Lancer la commande suivante:
-    ```ssh
-    xattr -c TOS_ESB-macosx-cocoa.app
-    ```
-    * Lancer ensuite l'exécutable une deuxième fois. Cela devra le débloquer. 
-
-Nous ne pouvons pas configurer un ESB avant de savoir créer, déployer et exécuter des
-services web avec les outils Talend ESB. Nous allons donc commencer avec le
-traditionnel Hello World. Pour cela, il faut commencer par créer un projet de votre choix.
-Dans toute cette partie, nous nous trouverons dans la perspective _Integration_.
-
-
-
-
-## Créer le service SOAP
-
-Pour créer un nouveau service de type SOAP:
-
-* Clic-droit sur *Services* de votre Repository, et choisir *Create Service*. Appeler le
-service *HelloWorldService*. Cliquer sur Suivant.
-* On vous propose soit de créer un nouveau WSDL, soit de choisir un WSDL existant. Dans notre cas, nous créons un nouveau WSDL. Cliquer sur Terminer.
-* Un service simple qui reçoit une chaîne de caractères et en produit une autre est créé. Une vue graphique de son WSDL s’affiche.
+* Vérifier que votre web service tourne bien et que votre WSDL est généré en tapant sur votre navigateur: `http://localhost:8080/ws/countries.wsdl`. Un WSDL devrait s'afficher correctement.
+* Ouvrir SOAPUI et créer un nouveau projet SOAP.
+* Lui donner un nom (par exemple _MySOAPService_) et un WSDL initial: `http://localhost:8080/ws/countries.wsdl`
+* Cliquer sur _Request 1_ qui se trouve sous l'opération _getCountry_
+* Une fenêtre s'affiche avec le fichier XML de la requête SOAP. Vous n'avez qu'à remplacer le ? par _Spain_, puis exécuter le web service. La réponse s'affichera sous la forme d'un fichier XML (SOAP Response) contenant les informations sur le pays donné en entrée, comme suit:
 
 <center>
-![HelloWorld Service](img/tp1/hw-soap.png)
+<img width="700pt" src="../img/tp1/soapresponse.png">
 </center>
 
-## Configurer le service SOAP
+ -->
 
-Pour pouvoir configurer votre service, il faut créer un Job. Mais d’abord:
+# Création d'un service web SOAP avec Anypoint Studio et Mule
 
-* Importer le WSDL de votre service dans votre repository. Pour cela, clic droit sur
-*HelloWorldService*, et choisir *Importer les schémas WSDL*. Vous retrouverez votre
-WSDL dans la partie *Metadonnées -> Fichier XML*.
-* Créer un nouveau Job pour votre service. Pour cela, clic-droit sur l’opération *HelloWorldServiceOperation* (sous Services) et choisir *Assign Job*.
-* Modifier votre Job pour qu’il ait l’allure suivante (Le *tLogRow* nous permettra
-d’afficher le résultat du service exécuté sur la console avant de l’envoyer au
-consommateur):
+Il est possible de créer un service web SOAP avec Anypoint en utilisant les connecteurs fournis, et très peu de lignes de code. Nous allons simuler le comportement du service web décrit dans le tutoriel suivant: `https://spring.io/guides/gs/producing-web-service`.
 
-![HelloWorld Job](img/tp1/hw-job.png)
+## 1. Exposition d'un service web SOAP à partir d'un fichier WSDL existant
 
-!!! tip "Astuce"
+Nous récupérons d'abord le fichier WSDL du service. Il est possible de générer un fichier WSDL avec des outils tel que Eclipse, mais nous allons nous contenter d'en utiliser un qui est prêt. Vous trouverez le fichier wsdl à télécharger ici : [![Download WSDL](img/download.png)](files/countriesService.wsdl.xml).
 
-    Il est conseillé de relier d'abord les composants *tXMLMap* et *tESBProviderResponse_1*, puis d'insérer le *tLogRow*. On vous demandera en reliant les deux premiers composants : *Récupérer le schéma du composant cible?*. Cliquer sur *Oui*.
+Le web service SOAP que nous allons créer prend en entrée un pays (nous accepterons pour le moment _Spain_ ou _Poland_), et nous donne sa population, sa capitale et sa monnaie. Nous allons suivre les étapes suivantes pour créer ce service avec Anypoint Studio. 
 
-* Configurer votre tXMLMap pour que le *in* de la requête soit transmise au *out* de la
-réponse, en lui concaténant le célèbre "Hello". Pour cela:
+  * Créer un nouveau Mule Project, qu'on appellera TP1. Dans la fenêtre de création : 
+    * Indiquer que le runtime est bien Mule Server 4.4.0
+    * Installer le runtime supplémentaire suivant: _Anypoint APIkit SOAP Plugin_
+    * Indiquer que le wsdl est le fichier que vous venez de télécharger. Pour cela, cliquer sur _"Import RAML from local file"_ et choisir le fichier wsdl. Vérifier que le service et le port s'affichent bien comme suit:
 
-    * Double clic sur votre XML Map.
-    * Clic-droit sur *payload* de l’entrée, et cliquer sur *Import from Repository*.
-    * Choisir le *HelloWorldServiceOperationRequest* correspondant au fichier WSDL que vous avez généré.
-    * Refaire les mêmes étapes pour le payload de la sortie, en choisissant *HelloWorldServiceOperationResponse*.
-    * Relier le *in* de la requête avec le *out* de la réponse (créer l’entrée comme sous-élément de la réponse)
-    * Modifier l’expression du *out* en ajoutant la chaîne **“Hello “** avant la valeur *in* de l’entrée.
-    * Le résultat de la XMLMap devrait ressembler à ce qui suit:
+<center><img style="" src="../img/tp1/service-port.png"></center>
 
-    ![XML Map](img/tp1/hw-xml-map.png)
+Une fois le projet créé, la fenêtre suivante va apparaître:
 
-    * Sauvegarder et quitter.
+<center><img style="" src="../img/tp1/initial-screen.png"></center>
 
 
-* Lancer votre Job (cela permettra de publier votre service web sur le port 8090).
-Vérifier que votre fichier WSDL existe bien.
+En cliquant sur **Listener**, vous pouvez trouver (en bas de l'écran) les informations de base du service SOAP exposé, qui est décrit par votre wsdl, tel qu'indiqué dans la figure suivante:
 
-## Tester le service SOAP
-Il est possible de tester votre service de plusieurs manières. L'une d'elles est d'utiliser un outil léger de test appelé *SOAPUI*.
+<center><img style="" src="../img/tp1/service-info.png"></center>
 
-* Lancer SOAPUI
-* Cliquer sur l'icône SOAP en haut de la fenêtre principale
-* Donner un nom au projet (par exemple Helloworld) et entrer l'adresse du fichier WSDL du service, comme suit:
-
-<center>
-![SOAPUI SOAP Project](img/tp1/soapui-soap-project.png)
-</center>
-
-* Double cliquer sur la requête générée, et remplir le *<in>?</in>* par un nom de votre choix.
-* Cliquer sur la flèche verte. Le résultat devra ressembler au suivant:
-
-![SOAPUI request-response](img/tp1/soapui-soap-req-resp.png)
-
-## Consommer le service SOAP
-
-Nous allons maintenant créer un consommateur pour notre service avec talend open studio. Pour cela:
-
-* Créer un nouveau Job, que vous appellerez *HelloWorldServiceConsumer*.
-* Concevez votre job de manière à ce qu’il ait l’allure suivante:
-
-![Soap Consommateur Job](img/tp1/hw-conso.png)
-
-* Voici les rôles des éléments que vous avez ajouté :
-
-    - **tFixedFlowInput** : définir les entrées à envoyer à votre service
-    - **tXMLMap** : associer les entrées définies aux entrées du service
-    - **tESBConsumer** : consommateur du service
-    - **tLogRow**: afficher les réponses et/ou les fautes (s’il y’en a)
-
-* Configurer votre composant *tFixedFlowInput*. Pour cela:
-
-    * Cliquer sur *Modifier le schéma* et ajouter une colonne appelée *Nom* de type *String*.
-    * Utiliser une *Inline Table* pour ajouter les trois chaînes en entrée: “Alice”, “Bob” et “Chuck”.
-
-
-* Configurer votre *tESBConsumer* en lui donnant comme WSDL celui du service que
-vous avez créé. Vérifiez bien que le Endpoint soit sur le port 8090.
-* Configurer votre *tXMLMap* pour que la variable *Nom* soit associée au *in* de votre
-service.
-* Exécuter le Job, et observez le résultat. Votre console devrait afficher le résultat suivant:
-
-![Helloworld Résultat](img/tp1/hw-result.png)
-
-# Service Web REST : Interrogation d'une base de données
-
-Nous allons maintenant montrer comment exposer un service REST pour interroger une base de données.
-
-## Créer et se connecter à la base de données
-
-Nous allons commencer par créer une base de données (MySQL dans mon cas), appelée *urbanisation-tp1* avec une table, que nous appellerons *user*. Cette table contient les champs *id*, *firstname* et *lastname*. Remplir ensuite la base à votre guise, de manière à avoir au moins 4 entrées.
-
-Elle devra ressembler à ce qui suit:
-<center>
-<img width="300pt" src="../img/tp1/rest-db.png">
-</center>
-
-Pour configurer une connexion à cette base de données avec Talend, suivre les étapes suivantes:
-
-* Dans les Métadonnées, sous *Connexions aux bases de données*, clic-droit, puis choisir: *Créer une connexion*.
-* Configurer votre connexion. Voici un exemple:
-
-![Configuration de la base de données](img/tp1/rest-bd-config.png)
-
-* Une fois la connexion créée, importer son schéma. Pour cela, clic-droit sur Metadonnées -> Connexions... -> **<nom-connexion>** et choisir: *Récupérer le schéma*.
-* Sélectionner la table *user*, et vérifier que les champs sont bien chargés dans la partie Schéma.
-
-## Créer le service REST
-Nous allons maintenant créer le service REST. Pour cela, créer un nouveau job, qu'on appellera *DBService*, puis glisser les composants suivants:
-
-* **tRestRequest** : Pour définir la requête REST que le client doit appeler
-* **user** : Table de la base de données. Dans la nouvelle connexion à la base de données que vous avez créé, sous *Schémas des tables*, glisser la table *user* vers le Job, puis choisir tMySQLInput dans la fenêtre de choix qui apparaît.
+Le path (1), domaine et port (2) permettent de représenter l'URL du service qui sera exposé. Pour tester cela, lancer le service, en faisant un clic-droit sur la fenêtre principale, et en choisissant: _Run project tp1_.
 
 !!! tip "Remarque"
 
-    Je choisis *tMySQLInput* car, dans mon cas, c'est une base de données MySQL, et je veux juste lire son contenu, je vais donc y accéder en entrée (d'où le *Input*).
+    Prenez soin d'utiliser une version de JDK entre 8 et 12, car ce sont celles compatibles avec le serveur Mule 4.4.
 
-* **tFlowToIterate** : Pour effectuer une itération sur les données d'entrée et génèrer des variables globales.
-* **tXMLMap** : Permet de router et transformer les flux entrants de la base de données vers le résultat de la requête.
-* **tRestResponse** : Pour définir la réponse à envoyer à l'utilisateur suite à sa requête.
-* **tLogRow** : Pour le log, bien sûr.
+Une fois le service lancé, vérifiez bien que le wsdl est exposé, sur l'URL: `http://localhost:8081/CountriesPortService/CountriesPortSoap11?wsdl`
 
-Le job aura l'allure suivante:
+## 2. Test du service web avec SOAP UI
 
-![Service REST](img/tp1/rest-service.png)
+Nous allons maintenant tester notre service web. Comme vous le savez certainement, pour tester un service web SOAP, il faut écrire une SOAP Request (en XML), pour obtenir un SOAP Response de la part du service. Pour cela, nous utilisons un outil de test léger, appelé SOAP UI. 
 
-## Configurer le service REST
-Nous désirons configurer le service de manière à ce que, quand un consommateur appelle l'URI:
-`http://localhost:8088/users?from=1&to=3`, le service retourne une réponse contenant les utilisateurs (id, nom et prénom) de la base de données dont les ids figurent entre 1 et 3.
+Lancer SOAP UI, et créer un nouveau projet SOAP. Ensuite:
 
-### tRestRequest
-tRestRequest devra être configuré comme suit:
+  * Nommer le projet TP1 par exemple.
+  * Coller l'URL du WSDL dans le champs _Initial WSDL_
+  * Dans le projet créé, naviguer vers _TP1 -> CountriesPortSoap11 -> getCountry -> Request1_ et double cliquer dessus. Une fenêtre s'ouvre, comme suit:
 
-* La valeur de *Endpoint URL* devra être: `"http://localhost:8088/users"`
-* Si vous avez connecté le tRestRequest avec le tFlowToIterate avec un lien appelé *getUsers*, vous devriez le retrouver dans la case *REST API Mapping*. Sinon, créez-le.
-* Garder les informations par défaut de ce mapping (méthode GET, URI /, Produit XML ou JSON).
-* En cliquant sur *getUsers*, un bouton avec trois petits points apparaît. Cliquez dessus.
-* Ajouter les deux colonnes *from* et *to* représentant les deux paramètres de la requête. Prenez soin à ce que:
+  <center><img style="" src="../img/tp1/soapui-initial.png"></center>
 
-    * Leur type soit *int*
-    * Leurs valeurs par défaut soient respectivement 1 et 3.
+Pour tester le service, il suffit de remplacer le **?** dans la balise <gs:name>?</gs:name> par le nom d'un pays, par exemple _Spain_. Lancer le service en cliquant sur la flèche verte. Que constatez-vous?
 
+Bien entendu, rien ne va vraiment se passer, car le service n'a pas encore été implémenté. Tout ce qu'on a fait, c'est de donner une spécification vide. La réponse qui s'affiche est un fichier XML affichant une erreur semblable à la suivante: _Operation [getCountry:\soapkit-config] not implemented_.
 
-    !!! tip "Remarque"
-        Ces valeurs seront utilisées dans le cas où le consommateur n'introduit pas de paramètres.
+Nous allons montrer dans ce qui suit comment corriger cette erreur, pour afficher les informations d'un pays donné en paramètre.
 
-    * Leur commentaire ait la valeur: *query*
+## 3. Implémentation du service
 
+Le deuxième rectangle dans la fenêtre principale de Anypoint permet de définir le comportement du service suite à la réception d'un SOAP Request. Il contient pour le moment un seul composant : _Transform Message_. En cliquant dessus, vous retrouverez dans l'output le message d'erreur qui vous a été retourné précédemment. Ceci veut dire que le comportement du service n'a pas été implémenté.
 
-    !!! tip "Remarque"
-        Cela indique que ces champs sont des paramètres de requête, pas définies dans le Path.
+Pour le faire, nous allons suivre les étapes suivantes:
 
-### La table user
-Puisque le composant *user* a été créé à partir de la connexion à votre base MySQL, il contient déjà les informations de connexion nécessaires.
+  * Cliquer sur le composant _Transform Message_. Dans ses propriétés, trois colonnes sont affichées tel que représenté dans la figure suivante:
 
-Il suffira dans notre cas de:
+<center><img style="" src="../img/tp1/transform_initial.png"></center>
 
-* Cliquer sur *Guess Schema*  pour charger le schéma de la base.
-* Changer la requête pour qu'elle soit comme suit:
+    - Input:  le squelette de la SOAP Request
+    - Output (graphique): le squelette de la SOAP Response.
+    - Output (code): le code XML correspondant à la SOAP Response.
+  
+  * Supprimer le bloc **Soap#Fault** du code XML. 
+  * Glisser la variable **name** de l'Input vers la variable **name** de l'output graphique. Observez comment le code XML a également changé.
+  * Double cliquer sur le champs **population** dans la colonne dde l'output graphique. Le code approprié sera généré dans le XML. Remplacer la valeur **null** par la valeur de la population en Espagne (47420000 à ce jour). Faites de même pour indiquer la capitale (_Madrid_) et la monnaie (_EUR_).
 
-```sql
-"SELECT * FROM `user` where id>="+globalMap.get("getUsers.from")+
-                      " and id<="+globalMap.get("getUsers.to")
-```
+Le résultat devra ressembler à ce qui suit:
 
-!!! tip "Remarque"
-    globalMap est une variable globale permettant de stocker les informations de la requête, comme par exemple ses paramètres. Ici on suppose que le nom de votre lien est _getUsers_. Si ce n'est pas le cas changez-le dans la requête. 
+<center><img style="" src="../img/tp1/transform_spain.png"></center>
 
-### tXMLMap
-Cliquer deux fois sur la *tXMLMap* pour la configurer.
+Relancer le service si vous l'avez fermé, et observez le résultat sur SOAPUI. Cela a l'air de bien marcher!
 
-* Dans la colonne de droite, ajouter (si ce n'est déjà fait) une colonne intitulée *body* dont le type est *Document*.
-* Cette colonne contient un élément *root*. Renommer cet élément pour *users*.
-* Ajouter un sous-élément à *users* appelé *user*.
-* Définir cet élément comme *loop Element*.
-* Glisser-déplacer l'id de la colonne en entrée vers le *user*. Créez-le comme attribut du noeud cible.
-* De même pour le *firstname* et *lastname*, qui seront, eux, des sous-éléments du noeud *user*.
-* Dans la colonne de droite, cliquer sur la petite clef à molette (![](img/tp1/clef-molette.png)). Mettre la valeur de "All in one" à *true*. Cela permettra à toutes les données XML d'être écrites dans un seul flux.
+Cela dit, le service donnera toujours le même résultat (population/capitale/monnaie), quelque soit l'input saisi dans pays. Nous allons essayer dans ce qui suit de le rendre un peu plus flexible, toujours sans écrire une ligne de code!
 
-La configuration finale sera donc comme suit:
+## 4. Implémentation d'une condition
 
-![tXMLMap du Service REST](img/tp1/rest-txmlmap.png)
+Pour implémenter une condition dans notre service, qui donne un output différent selon l'entrée qui lui est donnée, nous allons suivre les étapes suivantes:
 
-!!! tip "Indication"
-    La configuration précédente va générer une réponse de la forme suivante:
+  * Nous allons d'abord créer une variable _country_, qu'on va alimenter à partir de l'input. Pour cela:
+    * Glisser le composant _Set Variable_ de la palette juste avant _Transform Message_
+    * Donner le nom _country_ à la variable.
+    * Dans le champ _Value_, cliquer sur le bouton ![Expression Formula](img/tp1/fx.png).
+    * Écrire quelque chose dans le champ qui s'affiche (par exemple _country_)
+    * Cliquer ensuite sur le bouton ![Value Map](img/tp1/map.png) pour mapper l'entrée à la variable. 
+    * Dans la fenêtre qui s'affiche, glisser l'élément _name_ de la requête vers la chaine String (dans l'output graphique). La valeur que vous avez saisi sera écrasée par l'expression du nom en entrée. 
+    * Cliquer sur _Done_
+  * À partir de la palette, glisser le composant _Choice_ avant _Transform Message_
+  * Glisser ensuite _Transform Message_ dans le _When_ 
+  * Cliquer sur le _When_ pour définir la condition.
+    * Dans le champ _Expression_, cliquer sur le bouton ![Expression Formula](img/tp1/fx.png), puis taper **directement** la condition: `vars.country == 'Spain'`
+  * Pour ajouter une autre condition (un _else if_), glisser un nouveau _Transform Message_ de la palette vers l'extrémité droite du box _Choice_. Refaire ensuite les opérations précédentes pour un autre pays, tel que la Tunisie.
+  * Dans le box _Default_, créer un message d'erreur qui ressemble à celui qu'on avait à la création du service, qui indique que le pays donné en entrée n'est pas pris en charge.
 
-    ```XML
-    <users>
-      <user id=1>
-        <firstname> flen </firstname>
-        <lastname> fouleni </lastname>
-      </user>
-      <user id=2>
-        <firstname> flena </firstname>
-        <lastname> foulenia </lastname>
-      </user>
-    <users>
-    ```
-
-Les autres composants devront rester tels qu'ils sont par défaut. Il suffira maintenant de lancer le service, en cliquant sur *Exécuter*.
-
-## Tester le service REST
-### Dans un navigateur
-Pour tester le service, il suffit d'ouvrir un navigateur, et de taper la requête de votre choix.
-
-Par exemple, la requête suivante : `http://localhost:8088/users?from=2&to=4` donnera:
-
-```XML
-  <users>
-      <user id="2">
-          <firstname>Souad</firstname>
-          <lastname>Mezghenni</lastname>
-      </user>
-      <user id="3">
-          <firstname>Mourad</firstname>
-          <lastname>Lahwel</lastname>
-      </user>
-      <user id="4">
-          <firstname>Monia</firstname>
-          <lastname>Landolsi</lastname>
-      </user>
-  </users>
-```
-Si aucun paramètre n'est indiqué: `http://localhost:8088/users` cela donnera:
-
-```XML
-  <users>
-      <user id="1">
-          <firstname>Ahmed</firstname>
-          <lastname>Ramzi</lastname>
-      </user>
-      <user id="2">
-          <firstname>Souad</firstname>
-          <lastname>Mezghenni</lastname>
-      </user>
-      <user id="3">
-          <firstname>Mourad</firstname>
-          <lastname>Lahwel</lastname>
-      </user>
-  </users>
-```
-### Avec SOAPUI
-Il est possible de tester votre service REST avec *SOAPUI*.
-
-* Lancer SOAPUI
-* Cliquer sur l'icône REST en haut de la fenêtre principale
-* Entrer l'URI que vous désirez tester: `http://localhost:8088/users?from=2&to=4`
-* La fenêtre suivante devrait apparaître:
-
-![SOAPUI REST request](img/tp1/soapui-rest-req.png)
+Lancer le service, et vérifier avec SOAPUI que toutes les conditions sont bien prises en compte.
 
 
-* Cliquer sur la flèche verte. Le résultat devra ressembler au suivant:
 
-![SOAPUI REST request-response](img/tp1/soapui-rest-req-resp.png)
+!!! warning "Attention"
 
-## Consommer le service REST
+    Prenez des imprim-écrans dès que a marche, vous en aurez besoin dans le rapport!
 
-Pour créer un consommateur pour le web service REST avec Talend, il suffit de créer le Job suivant:
 
-<center>
-<img width="400pt" src="../img/tp1/rest-consumer.png">
-</center>
+# Consultation d'une base de données
 
-Configurer le *tRestClient* comme suit:
+Nous allons montrer dans ce qui suit les étapes nécessaires pour configurer et faire appel à une base de données. Nous allons utiliser MySQL dans notre exemple.
 
-![Configuration du consommateur REST](img/tp1/rest-cons-config.png)
+## 1. Création et population de la base
 
-Exécuter. Le résultat devrait ressembler à ceci:
+Pour cela:
 
-![Résultat du consommateur REST](img/tp1/rest-cons-result.png)
+  * Créer une nouvelle base de données avec MySQL. On l'appellera Countries.
+  * Lancer le script SQL suivant pour créer la table countries populée avec plusieurs exemples de pays: [![Script SQL](img/tp1/script.png)](files/countries.sql)
 
-#Homework
+Consulter votre base pour voir son contenu et sa structure.
 
-!!! note "Projet E1"
+## 2. Modification du flux
+
+Modifier le flux _getCountry_ de façon à ce qu'il ressemble à l'image suivante:
+
+<center><img style="" src="../img/tp1/db_flow.png"></center>
+
+  * **Set Variable** permet de créer une variable _country_ qui saisit l'entrée dans la SOAP Request.
+  * **Logger** permet d'afficher le contenu de la variable saisie sur la console, sous la forme: _"Pays: <nom_pays\>"_.
+  * **Select** contient la requête de sélection de la base de données, filtrée par le pays donné en entrée.
+  * **Transform Message** retourne dans la SOAP Response, les informations du pays en entrée, extraites de la base de données.
+
+Le résultat attendu ressemble au suivant:
+
+<center><img style="" src="../img/tp1/db_result.png"></center>
+
+# Homework
+
+!!! note "Projet: Étape 1"
     Pour la séance de TP prochaine, vous devez réaliser l'étape 1 du projet, qui consiste à:
     
     * Trouver le concept de votre entreprise (nom, logo, métier, et départements)

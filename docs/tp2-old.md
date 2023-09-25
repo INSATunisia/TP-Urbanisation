@@ -279,7 +279,7 @@ Pour activer la prise en compte de STS au niveau de notre service utilisateur da
 #### 4. Configurer le client
 Pour insérer le login/mdp dans votre application cliente, modifier les paramètres d’authentification de votre composant tESBConsumer dans votre job consommateur.
 
-# Homework
+#Homework
 
 !!! note "Projet E2"
     Pour la séance de TP prochaine, vous devez réaliser l'étape 2 du projet, qui consiste à:

@@ -8,7 +8,7 @@ repo_name: INSATunisia/TP-Urbanisation
 repo_url: https://github.com/INSATunisia/TP-Urbanisation
 
 # Copyright
-copyright: 'Copyright &copy; 2022 Lilia Sfaxi'
+copyright: 'Copyright &copy; 2023 Lilia Sfaxi'
 # Theme directory
 plugins:
   - search
@@ -83,8 +83,8 @@ extra_css:
 pages:
    - 'index.md'
    - Projet: 'projet.md'
-   - TP1 - Services Web REST et SOAP avec Talend: 'tp1.md'
-   - TP2 - Mise en Place d’un ESB avec Talend ESB: 'tp2.md'
-   - TP3 - Orchestration de Services avec Camunda: 'tp3.md'
-   - TP4 - API Management Anypoint Studio (MuleSoft): 'tp4.md'
+   - TP1 - Services Web SOAP avec Mule ESB: 'tp1.md'
+  #  - TP2 - Mise en Place d’un ESB avec Mule et Anypoint: 'tp2.md'
+  #  - TP3 - Orchestration de Services avec Camunda: 'tp3.md'
+  #  - TP4 - API Management avec Anypoint Studio (MuleSoft): 'tp4.md'
 
