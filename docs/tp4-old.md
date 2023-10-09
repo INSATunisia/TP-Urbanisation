@@ -8,9 +8,9 @@
 2. Gestion des APIs avec Anypoint Studio et le API Gateway de Mulesoft
 
 # Outils et Versions
-* [Anypoint Studio](https://www.mulesoft.com/platform/studio) Version: 7.14.0
-* [MySQL](https://dev.mysql.com/downloads/mysql/) ou tout autre SGBD de votre choix
-* _Dans ce TP, nous aurons besoin du service créé dans le [TP1](tp1.md#service-web-rest--interrogation-dune-base-de-données), ou bien de n'importe quel service REST de votre choix_
+* [Anypoint Studio 7 and Mule ESB 4](https://www.mulesoft.com/lp/dl/anypoint-mule-studio)
+* [MySQL](https://dev.mysql.com/downloads/) Version _latest_
+* !!!!!!!!_Dans ce TP, nous aurons besoin du service créé dans le [TP1](tp1.md#service-web-rest--interrogation-dune-base-de-données), ou bien de n'importe quel service REST de votre choix_
 
 # API Management avec Anypoint Studio
 
@@ -34,7 +34,7 @@ Dans ce qui suit, nous vous indiquons les étapes nécessaires pour créer un si
 Remplir le fichier pet-shop.raml créé pour qu'il ressemble à ce qui suit:
 
 ``` yaml
-  #%RAML 1.0
+  #RAML 1.0
   title: Pet Shop
   version: v1
   baseUri: /pets
@@ -119,13 +119,13 @@ resourceTypes:
           type: Pet
 ```
 
-  * Supprimer le contenu de /pets et de /{id} pour le remplacer par les nouveaux resourceTypes défini en utilisant: **type: Collection** et **type: Member**.
+  * Supprimer le contenu de /pets et de /{id} pour le remplacer par les nouveaux resourceTypes définis en utilisant: **type: Collection** et **type: Member**.
 
 ### Ajout de paramètres au type de ressource
 Pour rendre le type de ressource créé générique, il serait plus intéressant de paramétrer le type de réponse. Pour cela:
 
   * Remplacer le terme *Pet* dans *Collection* et *Member* par ``` <<item>> ```.
-  * Corriger les erreurs qui s’affichent dans les ressources *Collection* et *Member* respectivement par ```{ Collection: {item : Pet} }``` et ```{ Member: {item : Pet} }```
+  * Remplacer les ressources *Collection* et *Member* respectivement par ```{ Collection: {item : Pet} }``` et ```{ Member: {item : Pet} }```
 
 ### Ajout d’un exemple
 Pour ajouter un exemple d’animal, modifier le type *Pet* pour qu’il soit comme suit:
@@ -170,10 +170,10 @@ traits:
 ```
 
 
-### Première Application
+### Création du service
 Dans Anypoint Studio, créer un nouveau Mule Project: 
 
-  * Appeler le projet *MaPremiereApp*
+  * Appeler le projet *MyRESTApp*
   * Choisir Mule Server comme *Runtime Environment*.
   * Cliquer sur *Finish*.
 
@@ -366,3 +366,13 @@ Nous allons maintenant retourner un résultat différent du service initial. Par
 Pour tester le service, lancer dans un navigateur: ```http://localhost:8081/all-users/names```. Vous obtiendrez le résultat suivant:
 
 <center><img src="../img/tp4/names-result.png" width="70%"></center>
+
+
+# Homework
+
+!!! note "Projet E2"
+    Pour la séance de TP prochaine, vous devez réaliser l'étape 2 du projet, qui consiste à:
+    
+    * Terminer les diagrammes de votre entreprise commencés la semaine d'avant.
+    * Concevoir et commencer l'implémentation des services nécessaires pour votre PoC. 
+    * Réfléchir à l'usage des ESB, leur rôle et les stratégies qui y seront implémentées.

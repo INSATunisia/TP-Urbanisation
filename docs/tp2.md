@@ -1,283 +1,338 @@
-![ESB](img/esb.png)
+![API](img/api.png)
 
 # Télécharger PDF
-[![Download TP3](img/pdf.png)](tp2.pdf)
+[![Download TP4](img/pdf.png)](tp4.pdf)
 
 # Objectifs du TP
-1. Routage, médiation et transformation avec Talend ESB.
-2. Gestion du failover et répartition de charges, monitoring et authentification avec Talend ESB.
+1. Génération d’API avec Anypoint API Designer et le langage RAML
+2. Gestion des APIs avec Anypoint Studio et le API Gateway de Mulesoft
 
 # Outils et Versions
-* [Talend Open Studio for ESB](https://sourceforge.net/projects/talendesb/) Version: 8.0.1
-* [DBeaver Community](https://dbeaver.io/download/) Version 22.2.1
+* [Anypoint Studio 7 and Mule ESB 4](https://www.mulesoft.com/lp/dl/anypoint-mule-studio)
+* [MySQL](https://dev.mysql.com/downloads/) Version _latest_
+* Dans ce TP, nous aurons besoin du service SOAP créé dans le [TP1](tp1.md#service-web-rest--interrogation-dune-base-de-données).
 
-# Configuration et Utilisation de l'ESB Talend
-
-## Lancement de deux instances de l'ESB Talend
-
-Pour les besoins de notre TP, nous allons lancer deux instances de l’ESB Talend. Pour cela, l’environnement nous fournit une manière très simple de le faire:
-
-  * Aller dans le répertoire *<rep_install_talend\>/Runtime_ESBSE*
-  * Copier le répertoire *container* et le renommer en *alternate-container*.
-
-Nous allons maintenant configurer la deuxième instance de l’ESB (dans *alternate-container*) pour qu’elle se lance sur un port différent de la première. Pour cela:
-
-  * **Lancer l’ESB** : dans le répertoire *alternate-container* que vous venez de créer, aller vers *bin* et exécuter *trun.bash* (sur windows). Si vous êtes sur Linux ou mac, placez-vous sous le répertoire *alternate-container/bin* et  lancer dans un terminal la commande *./trun*. La fenêtre suivante devrait s’afficher:
-
-<center><img src="../img/tp3/run-ESB2.png"></center>
-
-!!! warning "Attention"
-    * Il faudra peut-être downgrader votre version de Java si vous êtes sur la 17 (la version recommandée ici est la 11).. sorry :sweat_smile:
-    * Le premier contenaire ne doit pas être en exécution, sinon il y'aura un conflit d'adresses. Il faut d'abord configurer le second contenaire pour qu'il se lance sur un port différent, ce que nous allons faire dans l'étape suivante.
+# API Management avec Anypoint Studio
 
 
-  * **Configurer l'ESB** : dans l’invite de commande affichée, taper:
 
-``` bash
-  source scripts/configureC1.sh
+# Génération d'API avec RAML
+## RAML
+[RAML](https://raml.org/) (RESTful API Modeling Language) est un langage pour la définition d’API HTTP qui satisfont les exigences de l'architecture REST. La spécification RAML est une application de la spécification YAML, qui fournit des mécanismes pour la définition d’APIs RESTful.
+
+RAML est développé et supporté par un groupe de leaders en nouvelles technologies, provenant de plusieurs entreprises éminentes (Mulesoft, Airware, Akana, VMware, CISCO…). Leur but est de construire une spécification ouverte, simple et succincte pour la description d’APIs. Ce groupe de travail contribue à la fois à la spécification RAML, ainsi qu’à un écosystème croissant d’outils autours de ce langage.
+
+## Création de l'API RAML avec AnyPoint API Designer
+Pour écrire un document RAML, ouvrir Anypoint Studio, et créer un nouveau projet de type **"API Specification Project"**, intitulé *CountriesAPI* de type *RAML 1.0*. L'interface suivante devra s'afficher:
+
+![New RAML Project](img/tp2/raml.png)
+
+## Création d’un document RAML
+Dans ce qui suit, nous vous indiquons les étapes nécessaires pour créer un simple fichier RAML décrivant une API REST répondant aux recommandations de bonne conception d'API REST.
+
+###  Création d’une API RAML
+Remplir le fichier _countriesapi.raml_ créé pour qu'il ressemble à ce qui suit:
+
+``` yaml
+#%RAML 1.0
+title: Countries
+version: v1
+baseUri: /countries
+
+/countries:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            properties:
+              name: string
+              population: number
+              capital: string
+              currency: string
+  post:
+    body:
+      application/json:
+        properties:
+            name: string
+            population: number
+            capital: string
+            currency: string
+  /{id}:
+    delete:
+      responses:
+        204:
+    put:
+      body:
+        application/json:
+          properties:
+            name: string
+            population: number
+            capital: string
+            currency: string
+```
+!!!warning "Attention!"
+    Prenez soin de respecter les tabulations et les retraits de ligne!
+
+
+Dans cette description, nous définissons le comportement principal de l'API, à l'appel des quatre méthodes les plus fréquentes: un *GET* ou un *POST* sur la ressource principale, et un *DELETE* ou un *PUT* sur un objet particulier représenté par son *id*.
+
+### Définir des types
+Pour éviter les redondances constatées dans notre définition, nous créons le type *Country*. Pour cela:
+
+  * Dans une nouvelle ligne au dessus de */countries*, taper les lignes suivantes:
+
+```yaml
+types:
+  Country:
+    properties:
+      name: string
+      population: number
+      capital: string
+      currency: string
 ```
 
-  * Un affichage tel que le suivant va apparaître:
+  * Définir *Country* comme type pour le corps de la méthode *post*, en écrivant: **type: Country** au dessous de *application/json* de la méthode post
+  * Ajouter de même *Country* comme type pour la méthode put, et *Country[]* pour la méthode get.
 
-<center><img src="../img/tp3/config-ESB2.png"></center>
+### Extraction d’un type de ressources
+Pour générer un type de ressources à partir d’une ressource existante:
 
-Vous avez ainsi créé un ESB, que vous avez configuré pour se lancer sur le port 8041, alors que, par défaut, il devrait se lancer sur le port 8040. Si vous voulez créer une troisième instance, vous pouvez la configurer en utilisant le fichier configureC2.sh, de même pour une quatrième instance… Pour revenir à la configuration par défaut, utiliser configureC0.sh.
+  * Ajouter le code suivant au dessus du *title*:
 
-  * Arrêtez votre ESB, en cliquant sur ctrl-d, et relancez-le de nouveau.
-  * Lancez dans un autre terminal l’instance de l’ESB se trouvant sous le répertoire d’origine container. Il est inutile de la configurer, elle se lancera par défaut sur le port 8040.
-
-## Publier votre Service dans l'ESB et le Tester
-Revenir au service web SOAP [HelloWorldService](tp1.md#service-web-soap-helloworld) que vous avez créé dans le TP1, et le publier sur l'ESB. Pour cela, ouvrir l'éditeur *Talend Open Studio* sur le projet *Helloworld*, et suivre les étapes suivantes:
-
-  * Faire un clic-droit sur le service *HelloWorldService* et choisir *Exporter le service*. Choisir comme répertoire de destination le dossier *deploy* se trouvant dans le conteneur où vous désirez déployer le service. Un fichier archive de type kar sera alors créé sous ce répertoire, permettant ainsi son déploiement à chaud (pas besoin de redémarrer l’ESB).
-  * Déployer votre service sur les deux instances d’ESB que vous avez démarré.
-  * Vérifier que vos services sont actifs:
-    - en tapant *list* dans vos deux instances d’ESB
-    - en affichant les fichiers WSDL du service sur les ports 8040 et 8041 au lieu de 8090.
-
-Pour tester votre service web:
-
-  * Dans le job consommateur de service, dans les propriétés du composant tESBConsumer, modifier le port du endpoint de 8090 à 8040
-  * Lancer votre job. Vérifier que l’affichage se fait correctement sur la console du TOS-ESB.
-
-Vérifier que votre service s’exécute bien sur l’ESB principal, en consultant le terminal où il est démarré. Vous devriez trouver un affichage semblable à celui-ci:
-
-<center><img src="../img/tp3/service-exec.png"></center>
-
-# Création des Routes
-
-Les routes permettent de définir le comportement que doit prendre le message selon son contenu. Dans notre exemple, nous allons définir deux types de routes: une route permettant de filtrer les messages par contenu, en envoyant les messages contenant le nom “Alice” vers un ESB, et le reste vers l’autre ESB. Une deuxième route permettra de modifier le contenu de certains messages avant de les faire parvenir à leurs destinataires.
-
-## Première Route: Filtrage des Messages
-
-  * Créer une nouvelle route en cliquant-droit sur *Routes -> Créer une Route*. Nous allons l’appeler FiltrageRoute.
-  * Définir votre route de manière à ce qu’elle ressemble à ce qui suit:
-
-<center><img src="../img/tp3/filtrage-route.png" width="500" height="300"></center>
-
-  * Les composants utilisés sont:
-
-    - **cSOAP** : fournit l'intégration avec Apache CXF pour la connexion aux services JAX-WS.
-    - **MessageRouter** : route des messages dans différents canaux selon des conditions spécifiées.
-
-  * Configurer la condition *when*, en précisant que c’est une condition de type **_simple_**, dont le texte est :
-
-```bash
-    "${bodyAs(String)} contains 'Alice'"
-```
-  Cela veut dire que, si le corps du message contient *Alice*, la requête sera routée vers le composant *cSOAP_2*.
-
-  * Configurer le composant cSOAP_1:
-
-    * Adresse: http://localhost:8042/services/HelloWorldService
-    * WSDL: http://localhost:8040/services/HelloWorldService?WSDL.
-
-!!! tip "Remarque"
-
-    Remarquez ici que le port utilisé pour l'adresse est 8042: c'est le port choisi pour le service façade fourni par la route. Le WSDL utilisé, par contre, est celui du service initial, exposé sur le port 8040, donc sur le premier ESB.
-
-  * Configurer l’adresse de cSOAP_2 sur le port 8040, et celle de cSOAP_3 sur le port 8041, tout en gardant le même WSDL pour les trois composants.
-  * Lancer la route pour la tester. La console devra afficher *connected*.
-
-Pour utiliser cette route, vous devez reconfigurer votre consommateur pour qu’il lance sa requête sur le port 8042. Exécutez-le et observez le résultat sur les terminaux des deux instances d’ESB démarrées. Que constatez-vous?
-
-??? fail "Erreur possible: java.lang.NoClassDefFoundError"
-
-    Dans le cas d'une erreur de type _java.lang.NoClassDefFoundError_, vérifier que tous les modules nécessaires sont bien téléchargés. Pour cela:
-
-    * Ouvrir _Window -> Show View... -> Modules
-    * Vérifier qu'il n'y a pas de modules nécessaires non téléchargés (leur statut est _Not Installed_ avec une icône de type :warning: ou :no_entry_sign:).
-    * Si vous en trouvez, téléchargez leur jar manuellement sur internet, et ajoutez-le au projet en cliquant sur le symbole du jar, comme indiqué dans la figure suivante:
-    <center><img src="../img/tp3/import_jar.png" width="500" height="300"></center>
-
-## Déploiement des Routes sur l'ESB
-
-Dans leur état actuel, vos routes doivent être lancées manuellement pour être prises en considération. Pour les déployer sur votre ESB et les garder ainsi toujours actives, suivre les étapes suivantes:
-
-  * Faites un clic-droit sur votre route et sélectionner: *Build Route* (veillez à ce que le job FiltrageRoute soit bien arrêté).
-  * Choisir le répertoire deploy du conteneur de votre choix.
-  * Tester votre route en exécutant à nouveau le consommateur.
-
-!!! warning "Attention"
-
-    Vous ne devez en aucun cas déployer votre route sur deux contenaires, sinon, il y'aura un conflit, car deux services façades seront exposés, ayant la même adresse.
-
-## Deuxième Route : Filtrage et Modification de Messages
-Dans cette nouvelle partie, nous allons modifier le corps du message après l’avoir filtré. Pour cela:
-
-  * Dans Talend Studio, dupliquer votre route *FiltrageRoute* et la nommer *ModificationRoute*.
-  * Insérer un composant *cSetBody* (permettant de modifier le corps du message reçu) puis un composant *cProcessor* (permettant  de remanier rapidement du code dans la route) entre le *cMessageRouter* et le *cSOAP_3*. Le but ici est de modifier le corps des messages reçus, selon leur contenu. Le résultat obtenu ressemblera au suivant:
-
-<center><img src="../img/tp3/modification-route.png"></center>
-
-
-  * Insérer le code suivant (de type Xpath) dans le *cSetBody* :
-
-```
-  "tns:HelloWorldServiceOperationRequest/in"
+```yaml
+resourceTypes:
+  Collection:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              type: Country[]
+    post:
+      body:
+        application/json:
+          type: Country
+  Member:
+    delete:
+      responses:
+        204:
+    put:
+      body:
+        application/json:
+          type: Country
 ```
 
-Ceci permet de saisir le contenu de la balise *in* de la requête SOAP envoyée par le consommateur. Il ne faut pas oublier de définir le Namespace *tns* (http://www.talend.org/service/).
+  * Supprimer le contenu de /countries et de /{id} pour le remplacer par les nouveaux resourceTypes définis en utilisant: **type: Collection** et **type: Member**.
 
-  * Insérer le code suivant dans le processeur:
+### Ajout de paramètres au type de ressource
+Pour rendre le type de ressource créé générique, il serait plus intéressant de paramétrer le type de réponse. Pour cela:
 
-```Java
-String name = exchange.getIn().getBody(String.class);
-String surname;
-if (name.contains("Bob")){
-  surname = "Bobby";
-}else{
-  surname = "Chucky";
+  * Remplacer le terme *Country* dans *Collection* et *Member* par ``` <<item>> ```.
+  * Remplacer les ressources *Collection* et *Member* respectivement par ```{ Collection: {item : Country} }``` et ```{ Member: {item : Country} }```
+
+### Ajout d’un exemple
+Pour ajouter un exemple de pays, modifier le type *Country* pour qu’il soit comme suit:
+
+```properties
+types:
+  Country:
+    properties:
+      name: string
+      population: number
+      capital: string
+      currency: string
+    example:
+      name: Spain
+      population: 46704314
+      capital: Madrid
+      currency: EUR
+```
+
+
+### Création du service REST avec APIKit
+APIKit est un toolkit open source spécialement créé pour faciliter l’implémentation d’APIs REST, en renforçant les bonnes pratiques de création d’APIs.
+
+Nous allons commencer par implémenter l'API REST que nous venons de créer avec RAML de faon statique, puis en faisant appel au service SOAP créé dans le TP précédent. 
+
+
+#### *Création du projet REST dans Mule*
+Créer un nouveau Mule Project qu’on appellera *CountriesRESTService*:
+
+  * Choisir comme environnement d’exécution Mule Server.
+  * Cliquer sur l'onglet **Import RAML from local file** et choisir le fichier _countriesapi.raml_ créé dans la première partie du TP.
+
+Un nouveau projet sera créé avec le fichiers *countriesapi.raml*  sous le répertoire *src/main/resources/api*, ainsi que des flux de gestion des différentes méthodes ajoutées par défaut dans le canevas. Vous retrouverez notamment:
+
+|Flux|Description|Figure|
+|---------|------------------------------------------------|-------------|
+| countriesapi-main | Flux principal, définissant un point d’accès HTTP, un routeur APIKit et une référence à une stratégie d'exception   | ![api-main](img/tp2/api-main.png)|
+| action:/ressource:api-config | Un Backend flow pour chaque paire de ressource/action dans le fichier RAML. Par exemple, *get:/products:api-config* représente l’action *get* de la ressource *products*   | ![get-users](img/tp2/getcountries.png)|
+
+#### *Configuration du flux principal*
+
+  * Dans les propriétés du composant Listener du flux principal (*countriesapi-main*), on peut constater que le chemin principal de l'api, représenté par le Path, est : _/api/*_.
+  * Dans le *Connector Configuration*, cliquer sur l'icône ![config](img/tp4/config.png), modifier le port en 8088 pour éviter les conflits futurs avec le service SOAP du TP précédent, puis cliquer sur *OK*.
+
+
+Lancer le projet comme *Mule Application*. 
+
+Pour commencer, afficher la documentation de l'API dans une *APIKit Console*. Pour cela:
+  
+  * Aller à *Window -> Show View -> Other...*
+  * Choisir *APIKit View -> APIKit Consoles*
+
+Une vue va s'afficher comme suit (regardez à gauche de l'écran):
+
+<center><img src="../img/tp2/window-console.png" width="40%"></center>
+
+Cliquer sur *Open Console*. Une fenêtre va s'afficher sur votre navigateur, comme suit:
+
+
+<center><img src="../img/tp2/console.png" width="40%"></center>
+
+Pour consulter votre API, cliquer par exemple sur le bouton *GET* de la ressource */countries*. La console affichera alors la réponse, qui a été définie comme exemple dans le fichier RAML de départ.
+
+<center><img src="../img/tp2/get-console.png" width="60%"></center>
+
+#### *Implémentation du service statiquement dans Mule*
+Nous allons implémenter la méthode *get* du service pour qu'elle extrait les données à partir de la base de données MySQL *Countries* créée dans le TP précédent. Pour cela, reconstruire le flux *get:\countries* de façon à obtenir le résultat suivant:
+
+<center><img src="../img/tp2/get-db.png" width="60%"></center>
+
+Pour tester que votre requête fonctionne bien, il suffit de taper le chemin suivant sur votre navigateur (ou tout autre outil de test REST: `http://localhost:8088/api/countries`. Si tout se passe bien, le résultat devrait ressembler à ce qui suit:
+
+```json
+[
+  {
+    capital: "Yerevan",
+    name: "Armenia",
+    currency: "AMD",
+    population: 3000000
+  },
+  {
+    capital: "Berlin",
+    name: "Germany",
+    currency: "EUR",
+    population: 83000000
+  },
+  {
+    capital: "Warsaw",
+    name: "Poland",
+    currency: "PLN",
+    population: 38000000
+  },
+  {
+    capital: "Moscow",
+    name: "Russia",
+    currency: "RUB",
+    population: 145000000
+  },
+  {
+    capital: "Madrid",
+    name: "Spain",
+    currency: "EUR",
+    population: 47420000
+  },
+  {
+    capital: "Tunis",
+    name: "Tunisia",
+    currency: "TND",
+    population: 12260000
+  }
+]
+```
+
+
+
+### Appel au service SOAP du TP1 à partir de l'API REST
+L'une des grandes utilités d'un ESB est d'intégrer les services existants qui utilisent parfois des protocoles ou technologies différentes. Nous allons montrer comment on pourra, avec notre service REST, faire appel à un service SOAP. 
+
+On rappelle que le service SOAP créé précédemment, prend en entrée le nom d'un pays (paramètre _name_ de type chaîne de caractères), et retourne une SOAP Response avec les informations relatives à ce pays, extraites de la base de données _countries_.
+
+#### *Modifier le RAML initial*
+Nous devons modifier le fichier RAML initial de façon à exposer une méthode **get** qui prend en entrée un nom de pays. Pour cela:
+
+1. Ouvrir le fichier RAML dans le projet *countriesrestservice* (vous le trouverez sous *src/main/resources/api*), et ajouter, sous *Member*, l'élément suivant:
+```yaml
+ get:
+  responses:
+    200:
+      body:
+        application/json:
+          type: <<item>>
+```
+2. Pour recharger le nouveau fichier et générer le flux que nous venons de créer, faire un clic-droit sur le projet, et choisir **Mule -> Generate Flows from Local REST API**. Vous remarquerez que le flux suivant vient d'être ajouté: 
+<center><img src="../img/tp2/get-id.png" width="60%"></center>
+
+3. Nous commencerons par tester ce service. Pour cela, dans le second *Transform Message*, glisser-déplacer la variable **id** vers la sortie **name**, comme suit:
+<center><img src="../img/tp2/getid-transform.png" width="60%"></center>
+
+4. Relancer ce service, et observer le résultat en tapant le chemin `http://localhost:8088/api/countries/Dorne`. L'affichage est bien sûr incongru, mais ça fonctionne s'il vous donne ça:
+
+```json
+{
+  name: "SpainDorne",
+  population: 46704314,
+  capital: "Madrid",
+  currency: "EUR"
 }
-exchange.getIn().setBody("<tns:HelloWorldServiceOperationRequest "+
-    "xmlns:tns=\"http://www.talend.org/service/\"><in>"
-    +surname+"</in>	</tns:HelloWorldServiceOperationRequest>");
 ```
 
-Ce code permet de modifier le corps du message entrant en remplaçant le nom par un surnom.
+#### *Appeler le service SOAP*
 
-  * Modifier l'adresse du composant *cSOAP_1* pour qu'il se lance sur le port 8043.
-  * Sauvegarder et exporter votre route dans l’ESB. Lancer le consommateur de nouveau et observez le résultat.
+Pour appeler votre service SOAP, modifier le flux de la requête *get:\countries\(id)* comme suit:
 
-# Fonctionnalités Supplémentaires de l'ESB
-## Failover et Répartition de Charge
-### Service Locator
-Via le Service Locator, l'ESB de Talend fournit des fonctionnalités de gestion de failover automatique et transparente ainsi que de répartition de charge via le lookup et l'enregistrement d'endpoints dynamiques dans Apache Zookeeper. Le Service Locator maintient la disponibilité du service afin de répondre aux demandes et aux Service Level Agreements (SLAs).
-
-### Configuration du Service Locator
-Pour activer le service locator (SL), il faut:
-
-  1. Déployer SL au niveau des conteneurs d’exécution Talend
-  2. Activer la prise en compte du SL au niveau du service cible
-  3. Configurer le consommateur du service pour prendre en compte le SL
-
-#### 1. Déploiement du SL dans le contenaire
-
-Pour tester sa capacité à gérer le failover et la répartition des charges, le SL doit être déployé dans les différents conteneurs de services où sera déployé votre service. Pour cela, taper dans l’invite de commande de chaque conteneur ESB:
-
+1. Supprimer tous les composants déjà existants.
+2. Ajouter le composant **Web Service Consumer**.
+3. Le configurer comme suit:
+    - Devant *Connector configuration*, cliquer sur ![add](img/tp4/add.png) pour ajouter une nouvelle configuration.
+    - Coller le chemin du WSDL de votre service SOAP dans _WSDL Location_ (si vous n'avez rien changé, cela devrait être `http://localhost:8081/CountriesPortService/CountriesPortSoap11?wsdl`) 
+    - Cliquer sur OK pour valider. Les valeurs suivantes devraient s'afficher :
+        * **Service**: CountriesPortService
+        * **Port**: CountriesPortSoap11
+        * **Address**: http://localhost:8081/CountriesPortService/CountriesPortSoap11
+     * Une fois cette fenêtre fermée, sélectionner (si ce n'est déjà fait) _getCountry_ dans Operation. 
+     * Dans la partie Body, cliquer sur le bouton pour mapper l'entrée du service REST à celui du service SOAP. Glisser-déplacer ensuite la variable _id_ se trouvant sous _Attributes -> uriParams_ de la fenêtre de gauche, vers la variable _name_ se trouvant sous *getCountryRequest* de la fenêtre de droite. Le code suivant devrait se générer :
 ```properties
-  tesb:start-locator
+output application/xml
+ns ns0 http://spring.io/guides/gs-producing-web-service
+---
+{
+	ns0#getCountryRequest: {
+		ns0#name: attributes.uriParams.id
+	}
+}
 ```
 
-Il est possible de visualiser votre SL dans la liste des services déployés sur le conteneur en tapant list sur votre terminal. Vous devriez trouver les lignes suivantes:
-
-<center><img src="../img/tp3/activ-locator.png"></center>
-
-#### 2. Activer SL dans le service
-
-Pour activer la prise en compte de SL au niveau de notre service utilisateur dans Talend Studio:
-
-  * Clic-droit sur le service
-  * Choisir *ESB Runtime Options*
-  * Cocher la case *"Utiliser le Service Locator"*
-
-Il faut veiller à re-déployer votre service dans les deux conteneurs après l’activation de la fonctionnalité.
-
-#### 3. Activer SL dans le consommateur
-
-Au niveau du consommateur du service, dans les propriétés du composant tESB, cocher la case *Use Service Locator*.
-
-### Test du Service Locator
-
-* Pour tester la répartition de charges* : Lancer le consommateur plusieurs fois sur le port 8040 et observez le résultat.
-
-* Pour tester la gestion du failover* : Arrêter le service sur le contenaire principal (8040). Pour cela, dans l'invite de commande du contenaire principal, taper *list*, puis chercher l'identifiant du service *HelloWorldService*. Taper ensuite : *stop <id_service\>*. Lancer le consommateur sur le endpoint 8040, et observez le résultat.
-
-## Service Monitoring
-Le composant SAM permet le logging et la surveillance des appels de service, réalisés avec le framework Apache CXF. Il peut être utilisé pour collecter, par exemple, les statistiques d’usage et le monitoring des fautes.
-
-Pour configurer le Service Activity Monitoring:
-
-1.	Déployer SAM au niveau du conteneur d’exécution Talend. Pour cela, taper :
+4. Ajouter maintenant le composant **Transform Message** pour transformer la réponse SOAP reçue en JSON.
+5. Glisser-déplacer les champs provenant du payload _getCountryResponse_ vers l'objet en sortie. Cela devra générer le code suivant:
 ```properties
-tesb:start-sam
+%dw 2.0
+output application/json
+ns ns0 http://spring.io/guides/gs-producing-web-service
+---
+{
+	capital: payload.body.ns0#getCountryResponse.ns0#country.ns0#capital default "",
+	name: payload.body.ns0#getCountryResponse.ns0#country.ns0#name default "",
+	currency: payload.body.ns0#getCountryResponse.ns0#country.ns0#currency default "",
+	population: payload.body.ns0#getCountryResponse.ns0#country.ns0#population default 0
+}
 ```
-  Vous remarquerez qu’une base de données Derby sera également déployée sur le conteneur: elle permet de stocker les informations sur l’activité des services.
+#### *Lancer les services*
 
-2.	Activer la prise en compte de SAM au niveau du service cible
-3.	Configurer le consommateur du service pour prendre en compte le SAM
+Pour exécuter les deux services dans Anypoint, il faut suivre les étapes suivantes:
 
-Pour visualiser le résultat de la surveillance, utiliser un visualiseur de bases de données, tel que [DBeaver](https://dbeaver.io/download/).
+* Créer une nouvelle configuration d'exécution (_Run Configurations..._) qu'on appellera **services1and2**
+* Sélectionner les deux services *tp1* et *countriesrestservice*. Cela devra ressembler à ce qui suit:
+<center><img src="../img/tp2/runconfig.png" width="60%"></center>
 
-Pour accéder à la base de données de monitoring, utiliser les paramètres de configuration suivants:
+* Lancer les deux services en cliquant sur _Run_.
 
--	*Database connection configuration*: Derby Server
--	*Driver*: Derby Server
--	*Database Server*: localhost
-- *Database Port*: 1527
-- *Database*: DB
--	*DB username*: test
--	*DB password*: test
+Une fois les deux services lancés, tester la nouvelle fonctionnalité implémentée, en allant sur le navigateur et en testant par exemple: `http://localhost:8088/api/countries/Armenia`. Le résultat affiché sera ainsi:
 
-Exécuter votre service plusieurs fois, et observer le résultat.
+<center><img src="../img/tp2/final.png" width="60%"></center>
 
-## Authentification
-### Security Token Service (STS) : Implémentation du WS-Trust
-Dans un environnement hétérogène, les services web doivent authentifier les services clients pour contrôler leur accès, grâce à la norme WS-Security, et en implémentant le WS-Trust. *"Trust"* veut dire *"Confiance"*: le but ici est donc d’établir un lien de confiance entre le consommateur et le fournisseur.
-
-Pour cela, un courtier d’authentification est utilisé, fournissant un contrôle d’accès pour les applications. Ce courtier délivre des jetons de sécurité utilisés par les clients pour s’authentifier au service.
-
-Le STS (*Security Token Service*) est un service web qui fournit un tel courtier d’authentification. Ses jetons respectent le standard WS-Trust. Il offre les fonctionnalités suivantes:
-
--	Délivrer un jeton de sécurité basé sur des paramètres d’authentification configurés.
--	Vérifier la validité d’un paramètre d’authentification
--	Renouveler un jeton de sécurité
--	Annuler un jeton de sécurité
--	Transformer un jeton de sécurité donné en un autre de type différent.
-
-
-L’utilisation d’un STS simplifie grandement la gestion de la sécurité pour le service et le client, car ils n’ont qu’à faire appel à ce STS, qui va gérer la logique de sécurité, au lieu de la traiter eux-mêmes.
-
-### Configuration des Paramètres de Sécurité
-Pour associer des paramètres de confidentialité à un service, il faut suivre les étapes suivantes:
-
-1. Déployer STS dans le conteneur d’exécution Talend
-2. Configurer les paramètres de sécurité de votre conteneur
-3. Activer la prise en compte de STS dans votre service
-4. Configurer votre client pour saisir les paramètres d’authentification.
-
-#### 1. Déployer STS dans le conteneur d’exécution
-Pour installer le service STS dans votre conteneur, démarrer ce dernier, et taper l’instruction suivante dans le terminal:
-```properties
-    feature:install tesb-sts
-```
-
-Si le service a bien été installé, vous pouvez vérifier qu’il est bien démarré en exécutant la commande : *list*. Vous devriez trouver les lignes suivantes:
-
-<center><img src="../img/tp3/activ-sts.png"></center>
-
-#### 2. Configurer les paramètres de sécurité de votre conteneur
-Comme c’est le STS qui prend en charge le contrôle d’accès, les paramètres d’authentification (le login/mdp par exemple) ne sont pas configurés au niveau du service fournisseur, mais au niveau du conteneur lui-même.
-
-Pour visualiser l’ensemble des utilisateurs autorisés sur votre conteneur, voir leurs mots de passes et rôles, et éventuellement en ajouter de nouveaux, ouvrir le fichier: *<conteneur\>/etc/users.properties*.
-
-Dans ce fichier, les informations d'authentification sont sous la forme: *user=password,group*. Ajouter une nouvelle ligne avec votre nom comme user et un mot de passe de votre choix, et choisir le groupe *admin*.
-
-#### 3. Activer STS dans votre service
-Pour activer la prise en compte de STS au niveau de notre service utilisateur dans Talend Studio, dans *ESB Runtime Options*, cocher le type d’authentification désiré (dans notre cas, *Identifiant/Mot de passe*)
-
-#### 4. Configurer le client
-Pour insérer le login/mdp dans votre application cliente, modifier les paramètres d’authentification de votre composant tESBConsumer dans votre job consommateur.
 
 # Homework
 
