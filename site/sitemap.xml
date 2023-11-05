@@ -2,52 +2,57 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>http://INSATunisia.github.io/TP-Urbanisation/</loc>
-         <lastmod>2023-10-09</lastmod>
+         <lastmod>2023-11-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://INSATunisia.github.io/TP-Urbanisation/projet/</loc>
-         <lastmod>2023-10-09</lastmod>
+         <lastmod>2023-11-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://INSATunisia.github.io/TP-Urbanisation/tp1-old/</loc>
-         <lastmod>2023-10-09</lastmod>
+         <lastmod>2023-11-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://INSATunisia.github.io/TP-Urbanisation/tp1/</loc>
-         <lastmod>2023-10-09</lastmod>
+         <lastmod>2023-11-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://INSATunisia.github.io/TP-Urbanisation/tp2-old/</loc>
-         <lastmod>2023-10-09</lastmod>
+         <lastmod>2023-11-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://INSATunisia.github.io/TP-Urbanisation/tp2/</loc>
-         <lastmod>2023-10-09</lastmod>
+         <lastmod>2023-11-05</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>http://INSATunisia.github.io/TP-Urbanisation/tp3-old/</loc>
+         <lastmod>2023-11-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://INSATunisia.github.io/TP-Urbanisation/tp3/</loc>
-         <lastmod>2023-10-09</lastmod>
+         <lastmod>2023-11-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://INSATunisia.github.io/TP-Urbanisation/tp4-old/</loc>
-         <lastmod>2023-10-09</lastmod>
+         <lastmod>2023-11-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://INSATunisia.github.io/TP-Urbanisation/slides/intro/</loc>
-         <lastmod>2023-10-09</lastmod>
+         <lastmod>2023-11-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>http://INSATunisia.github.io/TP-Urbanisation/slides/template/</loc>
-         <lastmod>2023-10-09</lastmod>
+         <lastmod>2023-11-05</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>

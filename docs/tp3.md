@@ -113,7 +113,8 @@ Nous allons pour réaliser ce service adapter un code fourni par Camunda. Je me 
     * La classe **MyConnectorFunction**, qui décrit:
         * Le connecteur dans l'annotation *@OutboundConnector*. Nous devons le modifier de façon à ce qu'il accepte comme entrée un seul élement *nom*, et que le type soit *"hello"*: c'est le même type que nous avons associé à la tâche dans le modeler.
         * La méthode *executeConnector* qui définit le comportement du connecteur. Nous aimerions juste qu'il sauvegarde l'input *nom* trouvé dans la requête dans une variable, puis qu'il donne en sortie: *"Bonjour <nom\>!"*
-  * La classe **LocalConnectorRuntime** sous le répertoire *test*:
+  
+    * La classe **LocalConnectorRuntime** sous le répertoire *test*:
         * Cette classe permet de lancer la tâche. 
         * Il est recommandé de **supprimer les autres classes de test** pour éviter les erreurs. Elles nous sont inutiles pour le moment.
   * Le fichier **application.properties** sous le répertoire *test*
@@ -123,7 +124,9 @@ Nous allons pour réaliser ce service adapter un code fourni par Camunda. Je me 
 Une fois les modifications apportées au code, nous allons ajouter les informations de connexion au cluster. Pour cela:
 
   * Dans Camunda Console, dans les informations de votre cluster, cliquer sur l'onglet *API*.
+
  ![Cluster Info](img/tp3/info-cluster.png)
+ 
   * Créer une nouvelle API. Lui donner un nom de votre choix, et garder les autres config telles qu'elles.
   * Copier et télécharger les informations données sous l'onglet *Spring Boot*.
   * Coller ces données dans le fichier *application.properties*.
