@@ -85,7 +85,6 @@ pages:
    - Projet: 'projet.md'
    - TP1 - Services Web SOAP avec Mule ESB: 'tp1.md'
    - TP2 - REST API Management avec Anypoint Studio: 'tp2.md'
-  #  - TP2 - Mise en Place d’un ESB avec Mule et Anypoint: 'tp2.md'
-  #  - TP3 - Orchestration de Services avec Camunda: 'tp3.md'
+   - TP3 - Orchestration de Services avec Camunda: 'tp3.md'
   
 

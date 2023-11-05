@@ -1,7 +1,7 @@
 ![API](img/api.png)
 
 # Télécharger PDF
-[![Download TP4](img/pdf.png)](tp4.pdf)
+[![Download TP4](img/pdf.png)](tp2.pdf)
 
 # Objectifs du TP
 1. Génération d’API avec Anypoint API Designer et le langage RAML
