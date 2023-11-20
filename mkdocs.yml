@@ -86,5 +86,6 @@ pages:
    - TP1 - Services Web SOAP avec Mule ESB: 'tp1.md'
    - TP2 - REST API Management avec Anypoint Studio: 'tp2.md'
    - TP3 - Orchestration de Services avec Camunda: 'tp3.md'
+   - TP4 - Intégration BPM et ESB: 'tp4.md'
   
 

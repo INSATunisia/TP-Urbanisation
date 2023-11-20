@@ -1,4 +1,6 @@
+<center>
 ![API](img/api.png)
+</center>
 
 # Télécharger PDF
 [![Download TP4](img/pdf.png)](tp2.pdf)
