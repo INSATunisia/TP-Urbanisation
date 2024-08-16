@@ -47,6 +47,11 @@ Il vous est ensuite demandé de modéliser le service métier décrit avec Camun
 
 
  
+<!--###################################-->
+# Projet
+
+!!! note "Étape 4"
+    Finaliser votre projet en intégrant les différents services et processus métier avec votre ESB. Le POC devrait être exécutable et complet pour la présentation finale du projet.  
 
 
 

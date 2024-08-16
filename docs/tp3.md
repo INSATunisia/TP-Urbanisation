@@ -136,7 +136,7 @@ Une fois les modifications apportées au code, nous allons ajouter les informati
 Exécuter votre connecteur en lançant la classe *LocalConnectorRuntime*. Vérifier bien que la sortie ressemble à ce qui suit:
 ![Console Output](img/tp3/output-console.png)
 
-Nous allons maintenant le tester. Lancer le votre processus et observer son avancement dans la page Operate. 
+Nous allons maintenant le tester. Lancer le processus et observer son avancement dans la page Operate. 
 
   * Le processus commence par attendre l'input de l'utilisateur dans la tâche *Bonjour qui?*:
 
@@ -171,9 +171,9 @@ Nous allons maintenant le tester. Lancer le votre processus et observer son avan
 
 
 <!--###################################-->
-# Homework
+# Projet
 
-!!! note "Projet E3"
+!!! note "Étape 3"
     Pour la séance de TP prochaine, vous devez réaliser l'étape 3 du projet, qui consiste à:
     
     * Concevoir et implémenter les processus métiers choisis de votre entreprise, avec Camunda ou tout autre outil BPM de votre choix.

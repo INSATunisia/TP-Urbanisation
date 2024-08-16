@@ -205,9 +205,9 @@ Le résultat attendu ressemble au suivant:
 
 <center><img style="" src="../img/tp1/db_result.png"></center>
 
-# Homework
+# Projet
 
-!!! note "Projet: Étape 1"
+!!! note "Étape 1"
     Pour la séance de TP prochaine, vous devez réaliser l'étape 1 du projet, qui consiste à:
     
     * Trouver le concept de votre entreprise (nom, logo, métier, et départements)

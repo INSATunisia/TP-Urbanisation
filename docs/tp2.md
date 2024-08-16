@@ -336,9 +336,9 @@ Une fois les deux services lancés, tester la nouvelle fonctionnalité implémen
 <center><img src="../img/tp2/final.png" width="60%"></center>
 
 
-# Homework
+# Projet
 
-!!! note "Projet E2"
+!!! note "Étape 2"
     Pour la séance de TP prochaine, vous devez réaliser l'étape 2 du projet, qui consiste à:
     
     * Terminer les diagrammes de votre entreprise commencés la semaine d'avant.
