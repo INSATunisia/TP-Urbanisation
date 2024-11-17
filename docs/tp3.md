@@ -26,7 +26,7 @@ Cette deuxième version étend ce standard en incluant des sémantiques d'exécu
 # Installation
 Pour installer l'environnement nécessaire à ce TP, il faut suivre les étapes suivantes:
 
-* Télécharger [Camunda](https://camunda.org/download/) distribution Tomcat (vous la trouverez en bas de la page), [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) et [Camunda Modeler](https://camunda.org/download/modeler/).
+* Télécharger [Camunda](https://downloads.camunda.cloud/release/camunda-bpm/tomcat/7.18/) distribution Tomcat, et [Camunda Modeler](https://camunda.org/download/modeler/).
 * Décompresser le fichier .zip Camunda téléchargé, et exécuter *start-camunda.sh* (pour les systèmes Unix-based) ou *start-camunda.bat* (pour les systèmes Windows).
 * La page d'accueil du serveur d'application va s'ouvrir dans votre navigateur préféré.
 * Lancer le Camunda Modeler.
