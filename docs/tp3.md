@@ -8,7 +8,7 @@ Création d'un processus métier (Business Process) en utilisant Camunda.
 
 # Outils et Versions
 * [Camunda](https://downloads.camunda.cloud/release/camunda-bpm/tomcat/7.18/) - Distribution Tomcat, Version: 7.18.0
-* [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) Version Ultimate 2016.1 (ou tout autre IDE de votre choix)
+* [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (ou tout autre IDE de votre choix)
 * [Camunda Modeler](https://camunda.org/download/modeler/) Version *latest*
 
 # Camunda [![Camunda Website](img/website.png)](https://camunda.org)
